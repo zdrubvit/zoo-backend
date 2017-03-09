@@ -1,0 +1,24 @@
+{
+  "name": "zoo-backend",
+  "version": "1.0.0",
+  "description": "A server application for the utilization of opendata from the Prague ZOO",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zdrubvit/zoo-backend.git"
+  },
+  "keywords": [
+    "zoo",
+    "animals",
+    "lexicon"
+  ],
+  "author": "Vit Zdrubecky",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zdrubvit/zoo-backend/issues"
+  },
+  "homepage": "https://github.com/zdrubvit/zoo-backend#readme"
+}
