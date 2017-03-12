@@ -5,26 +5,18 @@ const http = require('http');
 
 var collectionDriver;
 
-// MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database, function(error, db){
-// 	if(error){
-// 		console.log(error);
-// 	}
-// 	else{
-// 		collectionDriver = new CollectionDriver(db);
+getOpenData = function(url, fields, callback){
+	// hack
+	url += '&limit=10000';
 
-// 		collectionDriver.insertDocuments('sex', [{'name' : 'male'}, {'name' : 'female'}], function(error, result){
-// 			if(error){
-// 				console.log(error);
-// 			}
-// 			else{
-// 				console.log(result);
-// 				db.close;
-// 			}
-// 		});
-// 	}
-// });
+	if(fields){
+		var fieldsQuery = '&fields=' + fields.join();
 
-getOpenData = function(url, callback){
+		url += fieldsQuery;
+	}
+
+	console.log('Getting the data from URL: ' + url);
+
 	http.get(url, function(res){
 		var buffer = '';
 
@@ -47,12 +39,52 @@ getOpenData = function(url, callback){
 	});
 };
 
-getOpenData(config.opendata.host + '/' + config.opendata.pathSearch + '?resource_id=' + config.opendata.resources.lexicon + '&limit=10', function(error, data){
+MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database, function(error, db){
 	if(error){
 		console.log(error);
 	}
 	else{
-		console.log('just received the hot data!');
-		console.log(data);
+		collectionDriver = new CollectionDriver(db);
+
+		getOpenData(
+			config.opendata.host + '/' + config.opendata.pathSearch + '?resource_id=' + config.opendata.resources.classes,
+			['a', 'b', 'c', 'd', 'e'],
+			function(error, data){
+				if(error){
+					console.log(error);
+				}
+				else{
+					console.log('Just received the hot data with ' + data.result.records.length + ' records!');
+					// console.log(data);
+
+					collectionDriver.removeCollection('classifications', function(error, result){
+						if(error){
+							console.log(error);
+						}
+						else{
+							console.log(result);
+
+							collectionDriver.insertDocuments('classifications', data.result.records, function(error, result){
+								if(error){
+									console.log(error);
+								}
+								else{
+									console.log(result);
+
+									// Rename the fields one by one
+									collectionDriver.renameField('classifications', 'a', 'opendata_id');
+									collectionDriver.renameField('classifications', 'b', 'type');
+									collectionDriver.renameField('classifications', 'c', 'parent_id');
+									collectionDriver.renameField('classifications', 'd', 'name');
+									collectionDriver.renameField('classifications', 'e', 'slug');
+
+									db.close;
+								}
+							});
+						}
+					});
+				}
+			}
+		);
 	}
 });
