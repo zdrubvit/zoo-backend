@@ -1,7 +1,7 @@
+const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const CollectionDriver = require('./collection-driver').CollectionDriver;
 const config = require('./config').config;
-const http = require('http');
 
 var collectionDriver;
 
@@ -18,18 +18,18 @@ getOpenData = function(url, fields, callback){
 	console.log('Getting the data from URL: ' + url);
 
 	http.get(url, function(res){
+		var chunks = 0;
 		var buffer = '';
 
 		res.setEncoding('utf8');
 
 		res.on('data', function(chunk){
 			buffer += chunk;
-			console.log('got a chunk of data');
-			console.log('size of the chunk: ' + chunk.length);
+			chunks++;
 		});
 
 		res.on('end', function(){
-			console.log('buffer size: ' + buffer.length);
+			console.log('Total number of received data chunks: ' + chunks + ' with a cumulative size of: ' + buffer.length + ' bytes.');
 			var data = JSON.parse(buffer);
 
 			callback(null, data);
@@ -54,8 +54,7 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 					console.log(error);
 				}
 				else{
-					console.log('Just received the hot data with ' + data.result.records.length + ' records!');
-					// console.log(data);
+					console.log(data.result.records.length + ' records received from the "classes" table.');
 
 					collectionDriver.removeCollection('classifications', function(error, result){
 						if(error){
@@ -71,14 +70,22 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 								else{
 									console.log(result);
 
-									// Rename the fields one by one
-									collectionDriver.renameField('classifications', 'a', 'opendata_id');
-									collectionDriver.renameField('classifications', 'b', 'type');
-									collectionDriver.renameField('classifications', 'c', 'parent_id');
-									collectionDriver.renameField('classifications', 'd', 'name');
-									collectionDriver.renameField('classifications', 'e', 'slug');
+									// Rename the necessary fields, all at once
+									collectionDriver.renameFields(
+										'classifications', 
+										[{'a': 'opendata_id'}, {'b': 'type'}, {'c': 'parent_id'}, {'d': 'name'}, {'e': 'slug'}],
+										function(error, result){
+											if(error){
+												console.log(error);
+											}
+											else{
+												console.log(result);
+											}
+										}
+									);
 
-									db.close;
+									// Force close the db
+									db.close(true);
 								}
 							});
 						}

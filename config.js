@@ -1,10 +1,12 @@
 var config = {};
 
+// Connection parameters for the MongoDB database
 config.mongodb = {};
 config.mongodb.host = 'localhost';
 config.mongodb.port = '27017';
 config.mongodb.database = 'zoo';
 
+// Opendata specifications, endpoints and resource identificators
 config.opendata = {};
 config.opendata.host = 'http://opendata.praha.eu';
 config.opendata.pathSearch = 'api/action/datastore_search';
