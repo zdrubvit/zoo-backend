@@ -56,7 +56,7 @@ CollectionDriver.prototype.removeCollection = function(collectionName, callback)
 
 /*
 * Renames the collection fields.
-* The second argument is expected to be an array of objects in the form of {'oldFiedd': 'newField'}.
+* The second argument is expected to be an object in the form of {'oldFiedd': 'newField', 'anotherOldFiedd': 'anotherNewField', ...}
 */
 CollectionDriver.prototype.renameFields = function(collectionName, fields, callback){
 	this.getCollection(collectionName, function(error, collection){
@@ -64,22 +64,20 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields, callb
 			callback(error);
 		}
 		else{
-			fields.forEach(function(field){
-				// Update multiple docs - without a selector or optional parameters
-				collection.updateMany(
-					{}, 
-				    { $rename: field },
-				    null,
-				    function(error, result){
-				    	if(error){
-				    		callback(error.message);
-				    	}
-				    	else{
-				    		callback(null, 'The following field was renamed: ' + JSON.stringify(field) + '\n');
-				    	}
-				    }
-	    		);
-			});
+			// Update multiple docs - without a selector or optional parameters
+			collection.updateMany(
+				{}, 
+			    { $rename: fields },
+			    null,
+			    function(error, result){
+			    	if(error){
+			    		callback(error.message);
+			    	}
+			    	else{
+			    		callback(null, 'The following fields were renamed: ' + JSON.stringify(fields) + '.');
+			    	}
+			    }
+    		);
 		}
 	});
 };

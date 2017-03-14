@@ -41,7 +41,7 @@ getOpenData = function(url, fields, callback){
 
 MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database, function(error, db){
 	if(error){
-		console.log(error);
+		console.error(error);
 	}
 	else{
 		collectionDriver = new CollectionDriver(db);
@@ -51,21 +51,21 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 			['a', 'b', 'c', 'd', 'e'],
 			function(error, data){
 				if(error){
-					console.log(error);
+					console.error(error);
 				}
 				else{
 					console.log(data.result.records.length + ' records received from the "classes" table.');
 
 					collectionDriver.removeCollection('classifications', function(error, result){
 						if(error){
-							console.log(error);
+							console.error(error);
 						}
 						else{
 							console.log(result);
 
 							collectionDriver.insertDocuments('classifications', data.result.records, function(error, result){
 								if(error){
-									console.log(error);
+									console.error(error);
 								}
 								else{
 									console.log(result);
@@ -73,10 +73,10 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 									// Rename the necessary fields, all at once
 									collectionDriver.renameFields(
 										'classifications', 
-										[{'a': 'opendata_id'}, {'b': 'type'}, {'c': 'parent_id'}, {'d': 'name'}, {'e': 'slug'}],
+										{'a': 'opendata_id', 'b': 'type', 'c': 'parent_id', 'd': 'name', 'e': 'slug'},
 										function(error, result){
 											if(error){
-												console.log(error);
+												console.error(error);
 											}
 											else{
 												console.log(result);
