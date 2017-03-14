@@ -5,93 +5,74 @@ const config = require('./config').config;
 
 var collectionDriver;
 
-getOpenData = function(url, fields, callback){
-	// hack
-	url += '&limit=10000';
+getOpenData = function(url, fields){
+	return new Promise(function(resolve, reject){
+		// hack
+		url += '&limit=10000';
 
-	if(fields){
-		var fieldsQuery = '&fields=' + fields.join();
+		if(fields){
+			var fieldsQuery = '&fields=' + fields.join();
 
-		url += fieldsQuery;
-	}
+			url += fieldsQuery;
+		}
 
-	console.log('Getting the data from URL: ' + url);
+		console.log('Getting the data from a URL: ' + url);
 
-	http.get(url, function(res){
-		var chunks = 0;
-		var buffer = '';
+		http.get(url, function(res){
+			var chunks = 0;
+			var buffer = '';
 
-		res.setEncoding('utf8');
+			res.setEncoding('utf8');
 
-		res.on('data', function(chunk){
-			buffer += chunk;
-			chunks++;
+			res.on('data', function(chunk){
+				buffer += chunk;
+				chunks++;
+			});
+
+			res.on('end', function(){
+				console.log('Total number of received data chunks: ' + chunks + ' with a cumulative size of: ' + buffer.length + ' bytes.');
+				var data = JSON.parse(buffer);
+
+				resolve(data);
+			});
+		}).on('error', function(error){
+			reject(error);
 		});
-
-		res.on('end', function(){
-			console.log('Total number of received data chunks: ' + chunks + ' with a cumulative size of: ' + buffer.length + ' bytes.');
-			var data = JSON.parse(buffer);
-
-			callback(null, data);
-		});
-	}).on('error', function(error){
-		callback(error.message);
 	});
 };
 
-MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database, function(error, db){
-	if(error){
-		console.error(error);
-	}
-	else{
-		collectionDriver = new CollectionDriver(db);
+MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database).then(function(db){
+	collectionDriver = new CollectionDriver(db);
 
-		getOpenData(
-			config.opendata.host + '/' + config.opendata.pathSearch + '?resource_id=' + config.opendata.resources.classes,
-			['a', 'b', 'c', 'd', 'e'],
-			function(error, data){
-				if(error){
-					console.error(error);
-				}
-				else{
-					console.log(data.result.records.length + ' records received from the "classes" table.');
+	// Create the core endpoint string for Opendata
+	var endpoint = config.opendata.host + '/' + config.opendata.pathSearch + '?resource_id=';
 
-					collectionDriver.removeCollection('classifications', function(error, result){
-						if(error){
-							console.error(error);
-						}
-						else{
-							console.log(result);
+	// Start dealing with the classifications data
+	var url =  endpoint + config.opendata.resources.classes;
 
-							collectionDriver.insertDocuments('classifications', data.result.records, function(error, result){
-								if(error){
-									console.error(error);
-								}
-								else{
-									console.log(result);
+	// Make the data available for the collection driver using a closure
+	getOpenData(url, ['a', 'b', 'c', 'd', 'e']).then(function(data){
+		console.log(data.result.records.length + ' records received from the "classes" table.');
+		
+		collectionDriver.truncateCollection('classifications').then(function(result){
+			console.log(result);
+		
+			return collectionDriver.insertDocuments('classifications', data.result.records);
+		}).then(function(result){
+			console.log(result);
 
-									// Rename the necessary fields, all at once
-									collectionDriver.renameFields(
-										'classifications', 
-										{'a': 'opendata_id', 'b': 'type', 'c': 'parent_id', 'd': 'name', 'e': 'slug'},
-										function(error, result){
-											if(error){
-												console.error(error);
-											}
-											else{
-												console.log(result);
-											}
-										}
-									);
+			// Rename the necessary fields, all at once
+			return collectionDriver.renameFields('classifications', {'a': 'opendata_id', 'b': 'type', 'c': 'parent_id', 'd': 'name', 'e': 'slug'})
+		}).then(function(result){
+			console.log(result);
 
-									// Force close the db
-									db.close(true);
-								}
-							});
-						}
-					});
-				}
-			}
-		);
-	}
-});
+			// Force the db to close
+			db.close(true);
+		}).catch(function(error){
+			console.error(error);
+
+			// Force the db to close
+			db.close(true);
+		});
+	}, console.error);
+}, console.error);

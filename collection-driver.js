@@ -8,49 +8,42 @@ CollectionDriver = function(db){
 /*
 * Returns a collection.
 */
-CollectionDriver.prototype.getCollection = function(collectionName, callback){
-	this.db.collection(collectionName, function(error, collection){
-		if(error){
-			callback(error.message);
-		}
-		else{
-			callback(null, collection);
-		}
+CollectionDriver.prototype.getCollection = function(collectionName){
+	return new Promise((resolve, reject) => {
+		this.db.collection(collectionName, function(error, collection){
+			if(error) reject(error);
+			resolve(collection);
+		});
 	});
 };
 
 /*
 * Inserts documents, supplied via the second argument, in the specified collection.
 */
-CollectionDriver.prototype.insertDocuments = function(collectionName, documents, callback){
-	this.getCollection(collectionName, function(error, collection){
-		if(error){
-			callback(error);
-		}
-		else{
-			collection.insertMany(documents, function(error, result){
-				if(error){
-					callback(error.message);
-				}
-				else{
-					callback(null, result.insertedCount + ' new documents inserted into the ' + collectionName + ' collection.');
-				}
-			});
-		}
+CollectionDriver.prototype.insertDocuments = function(collectionName, documents){
+	return new Promise((resolve, reject) => {
+		this.getCollection(collectionName).then(function(collection){
+			return collection.insertMany(documents);
+		}).then(function(result){
+			resolve(result.insertedCount + ' new documents inserted into the "' + collectionName + '" collection.');
+		}).catch(function(error){
+			reject(error);
+		});
 	});
 };
 
 /*
 * Removes the whole collection with all its documents.
 */
-CollectionDriver.prototype.removeCollection = function(collectionName, callback){
-	this.db.dropCollection(collectionName, function(error, result){
-		if(error){
-			callback(error.message);
-		}
-		else{
-			callback(null, 'Collection "' + collectionName + '" removed.');
-		}
+CollectionDriver.prototype.truncateCollection = function(collectionName){
+	return new Promise((resolve, reject) => {
+		this.getCollection(collectionName).then(function(collection){
+			return collection.remove();
+		}).then(function(result){
+			resolve('Collection "' + collectionName + '" has been truncated.');
+		}).catch(function(error){
+			reject(error);
+		});
 	});
 };
 
@@ -58,27 +51,16 @@ CollectionDriver.prototype.removeCollection = function(collectionName, callback)
 * Renames the collection fields.
 * The second argument is expected to be an object in the form of {'oldFiedd': 'newField', 'anotherOldFiedd': 'anotherNewField', ...}
 */
-CollectionDriver.prototype.renameFields = function(collectionName, fields, callback){
-	this.getCollection(collectionName, function(error, collection){
-		if(error){
-			callback(error);
-		}
-		else{
+CollectionDriver.prototype.renameFields = function(collectionName, fields){
+	return new Promise((resolve, reject) => {
+		this.getCollection(collectionName).then(function(collection){
 			// Update multiple docs - without a selector or optional parameters
-			collection.updateMany(
-				{}, 
-			    { $rename: fields },
-			    null,
-			    function(error, result){
-			    	if(error){
-			    		callback(error.message);
-			    	}
-			    	else{
-			    		callback(null, 'The following fields were renamed: ' + JSON.stringify(fields) + '.');
-			    	}
-			    }
-    		);
-		}
+			return collection.updateMany({}, { $rename: fields }, null);
+		}).then(function(result){
+	    	resolve('The following fields in the "' + collectionName + '" collection were renamed: ' + JSON.stringify(fields) + '.');
+	    }).catch(function(error){
+	    	reject(error);
+	    });
 	});
 };
 
