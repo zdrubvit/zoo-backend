@@ -24,4 +24,27 @@ config.opendata.resources = {
 	'continentsRelations': '6316e78d-d8d2-404a-8741-91cc1395c6fd'
 };
 
+config.filterColumns = {};
+config.filterColumns.classes = ['a', 'b', 'c', 'd', 'e'];
+config.filterColumns.lexicon = ['id', 'title', 'alias', 'latin_title', 'class', 'order', 'family', 
+	'spread_note', 'biotopes_note', 'food_note', 'projects_note', 'proportions', 'reproduction', 'attractions', 'description', 'breeding'];
+
+config.fieldMapping = {};
+config.fieldMapping.classes = {
+	'a': 'opendata_id',
+	'b': 'type',
+	'c':'parent_id',
+	'd': 'name',
+	'e': 'slug'
+};
+config.fieldMapping.lexicon = {
+	'id': 'opendata_id',
+	'title': 'name',
+	'alias': 'slug',
+	'spread_note': 'spread_detail',
+	'biotopes_note': 'biotopes_detail',
+	'food_note': 'food_detail',
+	'projects_note': 'projects'
+};
+
 exports.config = config;

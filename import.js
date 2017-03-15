@@ -7,7 +7,7 @@ var collectionDriver;
 
 getOpenData = function(url, fields){
 	return new Promise(function(resolve, reject){
-		// hack
+		// hack around the Opendata server's default limit
 		url += '&limit=10000';
 
 		if(fields){
@@ -49,20 +49,49 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 
 	// Start dealing with the classifications data
 	var url =  endpoint + config.opendata.resources.classes;
+	var collectionName = 'classifications';
 
-	// Make the data available for the collection driver using a closure
-	getOpenData(url, ['a', 'b', 'c', 'd', 'e']).then(function(data){
+	// Make the received data available for the collection driver using a closure
+	getOpenData(url, config.filterColumns.classes).then(function(data){
 		console.log(data.result.records.length + ' records received from the "classes" table.');
 		
-		collectionDriver.truncateCollection('classifications').then(function(result){
+		collectionDriver.truncateCollection(collectionName).then(function(result){
 			console.log(result);
 		
-			return collectionDriver.insertDocuments('classifications', data.result.records);
+			return collectionDriver.insertDocuments(collectionName, data.result.records);
 		}).then(function(result){
 			console.log(result);
 
 			// Rename the necessary fields, all at once
-			return collectionDriver.renameFields('classifications', {'a': 'opendata_id', 'b': 'type', 'c': 'parent_id', 'd': 'name', 'e': 'slug'})
+			return collectionDriver.renameFields(collectionName, config.fieldMapping.classes)
+		}).then(function(result){
+			console.log(result);
+
+			// Force the db to close
+			db.close(true);
+		}).catch(function(error){
+			console.error(error);
+
+			// Force the db to close
+			db.close(true);
+		});
+	}, console.error);
+
+	// And now for the lexicon itself
+	var url =  endpoint + config.opendata.resources.lexicon;
+	var collectionName = 'lexicon';
+
+	getOpenData(url, config.filterColumns.lexicon).then(function(data){
+		console.log(data.result.records.length + ' records received from the "animals" table.');
+		
+		collectionDriver.truncateCollection(collectionName).then(function(result){
+			console.log(result);
+		
+			return collectionDriver.insertDocuments(collectionName, data.result.records);
+		}).then(function(result){
+			console.log(result);
+
+			return collectionDriver.renameFields(collectionName, config.fieldMapping.lexicon)
 		}).then(function(result){
 			console.log(result);
 
