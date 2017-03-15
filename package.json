@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/zdrubvit/zoo-backend#readme",
   "dependencies": {
-    "mongodb": "^2.2.24"
+    "cheerio": "^0.22.0",
+    "mongodb": "^2.2.24",
+    "striptags": "^3.0.1"
   }
 }

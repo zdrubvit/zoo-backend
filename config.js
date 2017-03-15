@@ -24,6 +24,10 @@ config.opendata.resources = {
 	'continentsRelations': '6316e78d-d8d2-404a-8741-91cc1395c6fd'
 };
 
+// Info regarding the ZOO's own domain
+config.zoo = {};
+config.zoo.host = 'https://zoopraha.cz/';
+
 config.filterColumns = {};
 config.filterColumns.classes = ['a', 'b', 'c', 'd', 'e'];
 config.filterColumns.lexicon = ['id', 'title', 'alias', 'latin_title', 'class', 'order', 'family', 
