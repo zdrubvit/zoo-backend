@@ -1,3 +1,5 @@
+const colors = require('colors');
+
 /*
 * Basic constructor.
 */
@@ -25,7 +27,7 @@ CollectionDriver.prototype.insertDocuments = function(collectionName, documents)
 		this.getCollection(collectionName).then(function(collection) {
 			return collection.insertMany(documents);
 		}).then(function(result) {
-			resolve(result.insertedCount + ' new documents inserted into the "' + collectionName + '" collection.');
+			resolve(result.insertedCount + ' new documents inserted into the "' + collectionName.cyan + '" collection.');
 		}).catch(function(error) {
 			reject(error);
 		});
@@ -40,7 +42,7 @@ CollectionDriver.prototype.truncateCollection = function(collectionName) {
 		this.getCollection(collectionName).then(function(collection) {
 			return collection.remove();
 		}).then(function(result) {
-			resolve('Collection "' + collectionName + '" has been truncated.');
+			resolve('Collection "' + collectionName.cyan + '" has been truncated.');
 		}).catch(function(error) {
 			reject(error);
 		});
@@ -57,7 +59,7 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 			// Update multiple docs - without a selector or optional parameters
 			return collection.updateMany({}, { $rename: fields }, null);
 		}).then(function(result) {
-	    	resolve('The following fields in the "' + collectionName + '" collection were renamed: ' + JSON.stringify(fields) + '.');
+	    	resolve('The following fields in the "' + collectionName.cyan + '" collection were renamed: ' + JSON.stringify(fields) + '.');
 	    }).catch(function(error) {
 	    	reject(error);
 	    });

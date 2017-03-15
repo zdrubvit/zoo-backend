@@ -28,11 +28,13 @@ config.opendata.resources = {
 config.zoo = {};
 config.zoo.host = 'https://zoopraha.cz/';
 
+// The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
 config.filterColumns.classes = ['a', 'b', 'c', 'd', 'e'];
 config.filterColumns.lexicon = ['id', 'title', 'alias', 'latin_title', 'class', 'order', 'family', 
 	'spread_note', 'biotopes_note', 'food_note', 'projects_note', 'proportions', 'reproduction', 'attractions', 'description', 'breeding'];
 
+// Objects representing the renaming of mongodb fields in the form of {'oldFiedd': 'newField', 'anotherOldField': 'anotherNewField', ...}
 config.fieldMapping = {};
 config.fieldMapping.classes = {
 	'a': 'opendata_id',
