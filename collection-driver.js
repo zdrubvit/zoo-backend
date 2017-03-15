@@ -64,5 +64,15 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields){
 	});
 };
 
+/*
+* Force-closes the underlying db connection
+*/
+CollectionDriver.prototype.closeDB = function() {
+	this.db.close(true, function(error, result){
+		if(error) console.error(error);
+		else console.log(result);
+	});
+};
+
 // Export the class.
 exports.CollectionDriver = CollectionDriver;
