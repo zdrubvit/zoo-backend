@@ -12,8 +12,17 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 	// Instantiate the importer and start filling the database
 	var importer = new Importer(endpoint, collectionDriver);
 
+	importer.importRelations().then((result) => {
+		console.log(result);
+		for(var i in importer.lexiconRelations) {
+			console.log(importer.lexiconRelations[i].length);
+		}
+	}, (error) => {
+		console.error('The lexicon relations import failed with a following error: ' + error);
+
+	});
 	// Start dealing with the lexicon first, there's a lot to do there
-	importer.importLexicon();
+	// importer.importLexicon();
 
 	// Now for the classifications data
 	// importer.importClasses();

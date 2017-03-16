@@ -15,7 +15,7 @@ config.opendata.resources = {
 	'lexicon': '4fc2aaff-3e7b-4d24-94d7-713a1f45074c',
 	'biotopes': 'fdeb7466-3c2b-4cd7-8e7a-02bb4314b481',
 	'biotopesRelations': '0101948d-bacc-42ac-97d2-803b08252057',
-	'classes': '90e66377-9d31-4852-8cfb-1981319ccb20',
+	'classifications': '90e66377-9d31-4852-8cfb-1981319ccb20',
 	'food': 'c650683e-a529-4ef2-9284-110521aa4bf9',
 	'foodRelations': 'e3cd5857-d62e-44f0-8414-17721808c62e',
 	'locations': '05702365-3670-4e52-9b57-fae2ef3f6275',
@@ -30,13 +30,13 @@ config.zoo.host = 'https://zoopraha.cz/';
 
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
-config.filterColumns.classes = ['a', 'b', 'c', 'd', 'e'];
+config.filterColumns.classifications = ['a', 'b', 'c', 'd', 'e'];
 config.filterColumns.lexicon = ['id', 'title', 'alias', 'latin_title', 'class', 'order', 'family', 
 	'spread_note', 'biotopes_note', 'food_note', 'projects_note', 'proportions', 'reproduction', 'attractions', 'description', 'breeding'];
 
 // Objects representing the renaming of mongodb fields in the form of {'oldFiedd': 'newField', 'anotherOldField': 'anotherNewField', ...}
 config.fieldMapping = {};
-config.fieldMapping.classes = {
+config.fieldMapping.classifications = {
 	'a': 'opendata_id',
 	'b': 'type',
 	'c':'parent_id',
