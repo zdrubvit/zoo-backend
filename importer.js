@@ -62,6 +62,26 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 	});
 };
 
+Importer.prototype.getRelatedData = function(relatedTable, relationName, foreignKey, relatedName, documentId) {
+	var relatedData = [];
+
+	var relations = this.lexiconRelations[relationName].filter(function(relation) {
+		return relation.id == documentId;
+	}).map(function(relation) {
+		return relation[foreignKey];
+	});
+
+	if(relations.length > 0) {
+		relatedData = this.lexiconRelations[relatedTable].filter(function(related) {
+			return (relations.indexOf(related[foreignKey]) !== -1) ? true : false;
+		}).map(function(related) {
+			return related[relatedName];
+		});
+	}
+
+	console.log('relations for ' + documentId + ': ' + JSON.stringify(relatedData));
+};
+
 Importer.prototype.transformLexiconDocuments = function(documents) {
 	return new Promise((resolve, reject) => {
 		var documentsLength = documents.length;
@@ -83,11 +103,10 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 			// Get rid of the HTML tags and trim the resulting string
 			document.description = striptags(document.description).trim();
 
-			var url = this.endpoint + config.opendata.resources.biotopesRelations;
-			this.getOpenData(url, null, {"id": document.id}, false).then((data) => {
-				// All the documents have been transformed -> resolve the promise
-				if(++documentsDone === documentsLength) resolve(documents);
-			}, console.error);
+			this.getRelatedData('biotopes', 'biotopesRelations', 'id_b', 'name_b', document.id);
+
+			// All the documents have been transformed -> resolve the promise
+			if(++documentsDone === documentsLength) resolve(documents);
 		});
 	});
 };
@@ -126,19 +145,17 @@ Importer.prototype.importRelations = function() {
 		var urlContinentsRelations = this.endpoint + config.opendata.resources.continentsRelations;
 
 		// Wait for all the subtasks to finish correctly
-		Promise.all([this.getOpenData(urlBiotopes, 'biotopes'),
-			this.getOpenData(urlBiotopesRelations, 'biotopesRelations'),
-			this.getOpenData(urlFood, 'food'),
-			this.getOpenData(urlFoodRelations, 'foodRelations'),
-			this.getOpenData(urlContinents, 'continents'),
-			this.getOpenData(urlContinentsRelations, 'continentsRelations')]).then((data) => {
+		Promise.all([this.getOpenData(urlBiotopes, 'biotopes'), this.getOpenData(urlBiotopesRelations, 'biotopesRelations'),
+					this.getOpenData(urlFood, 'food'), this.getOpenData(urlFoodRelations, 'foodRelations'),
+					this.getOpenData(urlContinents, 'continents'), this.getOpenData(urlContinentsRelations, 'continentsRelations')]).then((data) => {
 			for(let i = 0; i < data.length; i++) {
 				let resource = data[i].resource;
 
+				// The order of the resulting data is preserved according to the input array, but this way is more effective than looping over the relations object
 				this.lexiconRelations[resource] = data[i].result.records;
 			}
 
-			resolve('All the lexicon relations have been imported successfully.');
+			resolve();
 		}, (error) => {
 			// Empty the arrays
 			for(let property in this.lexiconRelations) {

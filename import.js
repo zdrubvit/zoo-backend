@@ -9,21 +9,19 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 	// Create the core endpoint string for Opendata
 	var endpoint = config.opendata.host + '/' + config.opendata.pathSearch + '?resource_id=';
 
-	// Instantiate the importer and start filling the database
+	// Instantiate the importer and start filling up the database
 	var importer = new Importer(endpoint, collectionDriver);
 
-	importer.importRelations().then((result) => {
-		console.log(result);
-		for(var i in importer.lexiconRelations) {
-			console.log(importer.lexiconRelations[i].length);
-		}
-	}, (error) => {
-		console.error('The lexicon relations import failed with a following error: ' + error);
+	// The lexicon's relations are the first on the line
+	importer.importRelations().then(() => {
+		console.log('All the lexicon relations have been imported successfully.');
 
+		// Now we can start taking care of the lexicon itself
+		importer.importLexicon();
+	}, (error) => {
+		console.error('The lexicon relations import failed with the following error: ' + error);
 	});
-	// Start dealing with the lexicon first, there's a lot to do there
-	// importer.importLexicon();
 
 	// Now for the classifications data
-	// importer.importClasses();
+	importer.importClassifications();
 }, console.error);
