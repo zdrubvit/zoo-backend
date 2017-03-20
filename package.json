@@ -24,6 +24,7 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "colors": "^1.1.2",
+    "express": "^4.15.2",
     "mongodb": "^2.2.24",
     "striptags": "^3.0.1"
   }

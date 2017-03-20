@@ -2,7 +2,7 @@ const http = require('http');
 const cheerio = require('cheerio');
 const striptags = require('striptags');
 const colors = require('colors');
-const config = require('./config').config;
+const config = require('../config').config;
 
 Importer = function(endpoint, collectionDriver) {
 	this.endpoint = endpoint;
@@ -111,7 +111,7 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 	});
 };
 
-Importer.prototype.importclassifications = function() {
+Importer.prototype.importClassifications = function() {
 	var url = this.endpoint + config.opendata.resources.classifications;
 	var collectionName = 'classifications';
 

@@ -8,11 +8,11 @@ CollectionDriver = function(db) {
 };
 
 /*
-* Returns a collection.
+* Returns a collection. It's non-existence is caught thanks to the strict mode.
 */
 CollectionDriver.prototype.getCollection = function(collectionName) {
 	return new Promise((resolve, reject) => {
-		this.db.collection(collectionName, function(error, collection) {
+		this.db.collection(collectionName, {'strict': true}, function(error, collection) {
 			if(error) reject(error);
 			resolve(collection);
 		});
