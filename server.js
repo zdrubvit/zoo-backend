@@ -4,12 +4,10 @@ const CollectionDriver = require('./modules/collection-driver').CollectionDriver
 const config = require('./config').config;
 const routesLexicon = require('./routes/lexicon');
 
-var collectionDriver;
-
 MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database).then((db) => {
 	console.log('A connection to the database ' + db.databaseName + ' has been set.');
 
-	collectionDriver = new CollectionDriver(db);
+	var collectionDriver = new CollectionDriver(db);
 
 	app.set('collectionDriver', collectionDriver);
 

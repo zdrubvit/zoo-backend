@@ -4,7 +4,8 @@
   "description": "A server application for the utilization of opendata from the Prague ZOO",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev-server": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,8 @@
     "express": "^4.15.2",
     "mongodb": "^2.2.24",
     "striptags": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
