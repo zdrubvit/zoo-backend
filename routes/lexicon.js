@@ -8,15 +8,13 @@ routes.use('/', function(req, res, next) {
 	next();
 });
 
-routes.get('/', function(req, res) {
-	collectionDriver.truncateCollection('classifications').then((result) => {
-		console.log(result);
-		res.end(result);
-	}, console.error);
-});
-
-routes.get('/please', function(req, res) {
-	res.end('pretty please');
+routes.get('/:id', function(req, res) {
+	collectionDriver.findDocument('lexicon', req.params.id).then((document) => {
+		res.json(document);
+	}, (error) => {
+		console.log(error);
+		res.end('Something went ballistic!');
+	});
 });
 
 module.exports = routes;

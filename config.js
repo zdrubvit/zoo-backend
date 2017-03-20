@@ -31,7 +31,7 @@ config.zoo.host = 'https://zoopraha.cz/';
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
 config.filterColumns.classifications = ['a', 'b', 'c', 'd', 'e'];
-config.filterColumns.lexicon = ['id', 'title', 'alias', 'latin_title', 'class', 'order', 'family', 
+config.filterColumns.lexicon = ['id', 'title', 'latin_title', 'classes', 'order', 
 	'spread_note', 'biotopes_note', 'food_note', 'projects_note', 'proportions', 'reproduction', 'attractions', 'description', 'breeding'];
 
 // Objects representing the renaming of mongodb fields in the form of {'oldField': 'newField', 'anotherOldField': 'anotherNewField', ...}
@@ -46,7 +46,6 @@ config.fieldMapping.classifications = {
 config.fieldMapping.lexicon = {
 	'id': 'opendata_id',
 	'title': 'name',
-	'alias': 'slug',
 	'spread_note': 'spread_detail',
 	'biotopes_note': 'biotopes_detail',
 	'food_note': 'food_detail',

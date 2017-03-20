@@ -17,7 +17,7 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 	// 	console.log('All the lexicon relations have been imported successfully.');
 
 	// 	// Now we can start taking care of the lexicon itself
-	// 	importer.importLexicon();
+		importer.importLexicon();
 	// }, (error) => {
 	// 	console.error('The lexicon relations import failed with the following error: ' + error);
 	// });

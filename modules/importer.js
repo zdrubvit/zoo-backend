@@ -103,7 +103,7 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 			// Get rid of the HTML tags and trim the resulting string
 			document.description = striptags(document.description).trim();
 
-			this.getRelatedData('biotopes', 'biotopesRelations', 'id_b', 'name_b', document.id);
+			// this.getRelatedData('biotopes', 'biotopesRelations', 'id_b', 'name_b', document.id);
 
 			// All the documents have been transformed -> resolve the promise
 			if(++documentsDone === documentsLength) resolve(documents);
@@ -116,7 +116,7 @@ Importer.prototype.importClassifications = function() {
 	var collectionName = 'classifications';
 
 	// Make the received data available for the nested functions through a closure
-	this.getOpenData(url, config.filterColumns.classifications).then((data) => {
+	this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
 		console.log(data.result.records.length + ' records received from the "classifications" table.');
 		
 		this.collectionDriver.truncateCollection(collectionName).then((result) => {
@@ -171,7 +171,7 @@ Importer.prototype.importLexicon = function() {
 	var url = this.endpoint + config.opendata.resources.lexicon;
 	var collectionName = 'lexicon';
 
-	this.getOpenData(url, config.filterColumns.lexicon).then((data) => {
+	this.getOpenData(url, collectionName, config.filterColumns.lexicon).then((data) => {
 		console.log(data.result.records.length + ' records received from the "animals" table.');
 			
 		this.collectionDriver.truncateCollection(collectionName).then((result) => {
