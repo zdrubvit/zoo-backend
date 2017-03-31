@@ -20,6 +20,9 @@ CollectionDriver.prototype.getCollection = function(collectionName) {
 	});
 };
 
+/*
+* Searches the collection for a specified document
+*/
 CollectionDriver.prototype.findDocument = function(collectionName, documentId) {
 	return new Promise((resolve, reject) => {
 		this.getCollection(collectionName).then((collection) => {

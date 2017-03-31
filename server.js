@@ -2,7 +2,6 @@ const app = require('express')();
 const MongoClient = require('mongodb').MongoClient;
 const CollectionDriver = require('./modules/collection-driver').CollectionDriver;
 const config = require('./config').config;
-const routesLexicon = require('./routes/lexicon');
 
 MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database).then((db) => {
 	console.log('A connection to the database ' + db.databaseName + ' has been set.');
@@ -11,7 +10,7 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 
 	app.set('collectionDriver', collectionDriver);
 
-	app.use('/lexicon', routesLexicon);
+	app.use('/lexicon', require('./routes/lexicon'));
 
 	app.listen(3000, function() {
 		console.log('listening...');
