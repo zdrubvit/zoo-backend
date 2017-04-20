@@ -3,6 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const CollectionDriver = require('./modules/collection-driver').CollectionDriver;
 const config = require('./config').config;
 
+// Connect to the DB and then reuse the instance across all the requests thanks to its own connection pool
 MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/' + config.mongodb.database).then((db) => {
 	console.log('A connection to the database ' + db.databaseName + ' has been set.');
 
