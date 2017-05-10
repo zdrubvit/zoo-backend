@@ -12,7 +12,7 @@ config.opendata.host = 'http://opendata.praha.eu';
 config.opendata.pathSearch = 'api/action/datastore_search';
 config.opendata.pathSearchSQL = 'api/action/datastore_search_sql';
 config.opendata.resources = {
-	'lexicon': '4fc2aaff-3e7b-4d24-94d7-713a1f45074c',
+	'lexicon': '75c57c6d-05fa-4a28-b340-81f7270a1ba1',
 	'biotopes': 'fdeb7466-3c2b-4cd7-8e7a-02bb4314b481',
 	'biotopesRelations': '0101948d-bacc-42ac-97d2-803b08252057',
 	'classifications': '90e66377-9d31-4852-8cfb-1981319ccb20',
@@ -31,8 +31,8 @@ config.zoo.host = 'https://zoopraha.cz/';
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
 config.filterColumns.classifications = ['a', 'b', 'c', 'd', 'e'];
-config.filterColumns.lexicon = ['id', 'title', 'latin_title', 'classes', 'order', 
-	'spread_note', 'biotopes_note', 'food_note', 'projects_note', 'proportions', 'reproduction', 'attractions', 'description', 'breeding'];
+config.filterColumns.lexicon = ['id', 'title', 'latin_title', 'classes', 'order', 'description', 'image_src', 'continents', 'spread_note', 
+	'biotop', 'biotopes_note', 'food', 'food_note', 'proportions', 'reproduction', 'attractions', 'projects_note', 'breeding', 'localities_title', 'localities_url'];
 
 // Objects representing the renaming of mongodb fields in the form of {'oldField': 'newField', 'anotherOldField': 'anotherNewField', ...}
 config.fieldMapping = {};
@@ -46,6 +46,8 @@ config.fieldMapping.classifications = {
 config.fieldMapping.lexicon = {
 	'id': 'opendata_id',
 	'title': 'name',
+	'classes': 'class',
+	'image_src': 'image',
 	'spread_note': 'spread_detail',
 	'biotopes_note': 'biotopes_detail',
 	'food_note': 'food_detail',

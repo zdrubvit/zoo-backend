@@ -7,14 +7,6 @@ const config = require('../config').config;
 Importer = function(endpoint, collectionDriver) {
 	this.endpoint = endpoint;
 	this.collectionDriver = collectionDriver;
-	this.lexiconRelations = {
-		'biotopes': [],
-		'biotopesRelations': [],
-		'food': [],
-		'foodRelations': [],
-		'continents': [],
-		'continentsRelations': []
-	}
 };
 
 Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
@@ -62,108 +54,35 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 	});
 };
 
-Importer.prototype.getRelatedData = function(relatedTable, relationName, foreignKey, relatedName, documentId) {
-	var relatedData = [];
-
-	var relations = this.lexiconRelations[relationName].filter(function(relation) {
-		return relation.id == documentId;
-	}).map(function(relation) {
-		return relation[foreignKey];
-	});
-
-	if(relations.length > 0) {
-		relatedData = this.lexiconRelations[relatedTable].filter(function(related) {
-			return (relations.indexOf(related[foreignKey]) !== -1) ? true : false;
-		}).map(function(related) {
-			return related[relatedName];
-		});
-	}
-
-	console.log('relations for ' + documentId + ': ' + JSON.stringify(relatedData));
-};
-
-Importer.prototype.transformLexiconDocuments = function(documents) {
-	return new Promise((resolve, reject) => {
-		var documentsLength = documents.length;
-		var documentsDone = 0;
-
-		documents.forEach((document, index) => {
-			// Load the description as a JQuery-like object
-			var $ = cheerio.load(document.description);
-
-			// Try to pull out the image and put it to its own field
-			var image = $('img').first().attr('src');
-			if(image) {
-				// Fix the case when there's no domain specified
-				if(image.indexOf('images') === 0) image = config.zoo.host + image;
-
-				document.image = image;
-			}
-
-			// Get rid of the HTML tags and trim the resulting string
-			document.description = striptags(document.description).trim();
-
-			// this.getRelatedData('biotopes', 'biotopesRelations', 'id_b', 'name_b', document.id);
-
-			// All the documents have been transformed -> resolve the promise
-			if(++documentsDone === documentsLength) resolve(documents);
-		});
-	});
-};
-
 Importer.prototype.importClassifications = function() {
-	var url = this.endpoint + config.opendata.resources.classifications;
-	var collectionName = 'classifications';
-
-	// Make the received data available for the nested functions through a closure
-	this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
-		console.log(data.result.records.length + ' records received from the "classifications" table.');
-		
-		this.collectionDriver.truncateCollection(collectionName).then((result) => {
-			console.log(result);
-		
-			return this.collectionDriver.insertDocuments(collectionName, data.result.records);
-		})
-		.then((result) => {
-			console.log(result);
-
-			// Rename the necessary fields, all at once
-			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.classifications);
-		})
-		.then(console.log)
-		.catch(console.error);
-	}, console.error);
-};
-
-Importer.prototype.importRelations = function() {
 	return new Promise((resolve, reject) => {
-		var urlBiotopes = this.endpoint + config.opendata.resources.biotopes;
-		var urlBiotopesRelations = this.endpoint + config.opendata.resources.biotopesRelations;
-		var urlFood = this.endpoint + config.opendata.resources.food;
-		var urlFoodRelations = this.endpoint + config.opendata.resources.foodRelations;
-		var urlContinents = this.endpoint + config.opendata.resources.continents;
-		var urlContinentsRelations = this.endpoint + config.opendata.resources.continentsRelations;
+		var url = this.endpoint + config.opendata.resources.classifications;
+		var collectionName = 'classifications';
 
-		// Wait for all the subtasks to finish correctly
-		Promise.all([this.getOpenData(urlBiotopes, 'biotopes'), this.getOpenData(urlBiotopesRelations, 'biotopesRelations'),
-					this.getOpenData(urlFood, 'food'), this.getOpenData(urlFoodRelations, 'foodRelations'),
-					this.getOpenData(urlContinents, 'continents'), this.getOpenData(urlContinentsRelations, 'continentsRelations')]).then((data) => {
-			for(let i = 0; i < data.length; i++) {
-				let resource = data[i].resource;
+		// Make the received data available for the nested functions through a closure
+		this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
+			console.log(data.result.records.length + ' records received from the "classifications" table.');
+			
+			this.collectionDriver.truncateCollection(collectionName).then((result) => {
+				console.log(result);
+			
+				return this.collectionDriver.insertDocuments(collectionName, data.result.records);
+			})
+			.then((result) => {
+				console.log(result);
 
-				// The order of the resulting data is preserved according to the input array, but this way is more effective than looping over the relations object
-				this.lexiconRelations[resource] = data[i].result.records;
-			}
+				// Rename the necessary fields, all at once
+				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.classifications);
+			})
+			.then((result) => {
+				console.log(result);
 
-			resolve();
-		}, (error) => {
-			// Empty the arrays
-			for(let property in this.lexiconRelations) {
-				this.lexiconRelations[property].length = 0;
-			}
-
-			reject(error);
-		});
+				resolve('All the animal classifications have been imported successfully.');
+			})
+			.catch((error) => {
+				reject(error);
+			});
+		}, console.error);
 	});
 };
 
@@ -190,6 +109,35 @@ Importer.prototype.importLexicon = function() {
 		.then(console.log)
 		.catch(console.error);
 	}, console.error);
+};
+
+Importer.prototype.transformLexiconDocuments = function(documents) {
+	return new Promise((resolve, reject) => {
+		var documentsLength = documents.length;
+		var documentsDone = 0;
+
+		documents.forEach((document, index) => {
+			// If the image is absent, try to pull it out of the description in case there's still some HTML present
+			if (document.image_src == '') {
+				// Load the description as a JQuery-like object and traverse it
+				var $ = cheerio.load(document.description);
+
+				var image = $('img').first().attr('src');
+				if(image) {
+					// Fix the case when there's no domain specified
+					if(image.indexOf('images') === 0) image = config.zoo.host + image;
+
+					document.image_src = image;
+				}
+			}
+
+			// Get rid of the HTML tags and trim the resulting string
+			document.description = striptags(document.description).trim();
+
+			// All the documents have been transformed -> resolve the promise
+			if(++documentsDone === documentsLength) resolve(documents);
+		});
+	});
 };
 
 exports.Importer = Importer;
