@@ -5,6 +5,12 @@ config.mongodb = {};
 config.mongodb.host = 'localhost';
 config.mongodb.port = '27017';
 config.mongodb.database = 'zoo';
+config.mongodb.collectionNames = {
+	'classifications': 'classifications',
+	'lexicon': 'lexicon',
+	'events': 'events',
+	'adoptions': 'adoptions'
+}
 
 // Opendata specifications, endpoints and resource identificators
 config.opendata = {};
@@ -21,7 +27,9 @@ config.opendata.resources = {
 	'locations': '05702365-3670-4e52-9b57-fae2ef3f6275',
 	'locationsTypes': '898c46ec-952b-4584-aafa-cd6276274085',
 	'continents': 'fead1025-57df-44e9-a9f7-e2d856cdabb1',
-	'continentsRelations': '6316e78d-d8d2-404a-8741-91cc1395c6fd'
+	'continentsRelations': '6316e78d-d8d2-404a-8741-91cc1395c6fd',
+	'events': 'dec3e4fb-b624-4f55-80a0-4713d5800481',
+	'adoptions': '968026b1-0f7c-4471-aa7c-a244574f2030'
 };
 
 // Info regarding the ZOO's own domain
@@ -33,6 +41,8 @@ config.filterColumns = {};
 config.filterColumns.classifications = ['a', 'b', 'c', 'd', 'e'];
 config.filterColumns.lexicon = ['id', 'title', 'latin_title', 'classes', 'order', 'description', 'image_src', 'continents', 'spread_note', 
 	'biotop', 'biotopes_note', 'food', 'food_note', 'proportions', 'reproduction', 'attractions', 'projects_note', 'breeding', 'localities_title', 'localities_url'];
+config.filterColumns.events = ['start', 'end', 'summary', 'description'];
+config.filterColumns.adoptions = ['id', 'nazev_cz', 'cena', 'k_prohlidce'];
 
 // Objects representing the renaming of mongodb fields in the form of {'oldField': 'newField', 'anotherOldField': 'anotherNewField', ...}
 config.fieldMapping = {};
@@ -48,10 +58,24 @@ config.fieldMapping.lexicon = {
 	'title': 'name',
 	'classes': 'class',
 	'image_src': 'image',
+	'food_note': 'food_detail',
 	'spread_note': 'spread_detail',
 	'biotopes_note': 'biotopes_detail',
-	'food_note': 'food_detail',
 	'projects_note': 'projects'
 };
+config.fieldMapping.events = {
+	'summary': 'title'
+};
+config.fieldMapping.adoptions = {
+	'id': 'opendata_id',
+	'nazev_cz': 'name',
+	'cena': 'price',
+	'k_prohlidce': 'visit'
+};
+
+// The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
+config.jsonserialize = {};
+config.jsonserialize.lexicon = ['opendata_id', 'name', 'latin_title', 'class', 'order', 'description', 'image', 'continents', 'spread_detail', 
+	'biotop', 'biotopes_detail', 'food', 'food_detail', 'proportions', 'reproduction', 'attractions', 'projects', 'breeding', 'localities_title', 'localities_url'];
 
 exports.config = config;

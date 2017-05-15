@@ -12,13 +12,16 @@ MongoClient.connect('mongodb://' + config.mongodb.host + ':' + config.mongodb.po
 	// Instantiate the importer and start filling up the database
 	var importer = new Importer(endpoint, collectionDriver);
 
-	// The animal classifications are the first on the line
-	importer.importClassifications().then((result) => {
+	// The animal lexicon is the first on the line
+	importer.importLexicon().then((result) => {
 		console.log(result);
 
-		// Now we can start taking care of the lexicon itself
-		importer.importLexicon();
+		// Now we can start taking care of the animal adoptions that rely partially on the lexicon
+		importer.importAdoptions();
 	}, (error) => {
-		console.error('The lexicon relations import failed with the following error: ' + error);
+		console.error("The lexicon import failed with the following error: " + error);
 	});
+
+	// importer.importClassifications();
+	// importer.importEvents();
 }, console.error);

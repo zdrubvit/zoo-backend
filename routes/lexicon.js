@@ -1,5 +1,7 @@
 const routes = require('express').Router();
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const ObjectID = require('mongodb').ObjectID;
+const config = require('../config').config;
 
 var collectionDriver;
 var lexiconSerializer;
@@ -12,7 +14,7 @@ routes.use('/', function(req, res, next) {
 	// Create a serializer instance with perfected config options
 	lexiconSerializer = new JSONAPISerializer(collectionName, {
 		'id': '_id',
-		'attributes': ['name', 'latin_title'],
+		'attributes': config.jsonserialize.lexicon,
 		'pluralizeType': false
 	});
 
@@ -20,7 +22,7 @@ routes.use('/', function(req, res, next) {
 });
 
 routes.get('/', function(req, res) {
-	var fieldNames = ['name', 'classes', 'biotopes', 'latin_title'];
+	var fieldNames = config.jsonserialize.lexicon;
 	var query = {};
 
 	// Loop through the query parameters, check if they're proper field names and if they are, add them to the query
@@ -41,7 +43,7 @@ routes.get('/', function(req, res) {
 });
 
 routes.get('/:id', function(req, res) {
-	collectionDriver.findDocument(collectionName, req.params.id).then((document) => {
+	collectionDriver.findDocument(collectionName, {'_id': ObjectID(req.params.id)}).then((document) => {
 		var payload = lexiconSerializer.serialize(document);
 
 		res.json(payload);

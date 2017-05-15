@@ -1,5 +1,4 @@
 const colors = require('colors');
-const ObjectID = require('mongodb').ObjectID;
 
 /*
 * Basic constructor.
@@ -13,9 +12,17 @@ CollectionDriver = function(db) {
 */
 CollectionDriver.prototype.getCollection = function(collectionName) {
 	return new Promise((resolve, reject) => {
-		this.db.collection(collectionName, {'strict': true}, function(error, collection) {
-			if(error) reject(error);
-			resolve(collection);
+		this.db.collection(collectionName, {'strict': true}, (error, collection) => {
+			if(error) {
+				// Try to create the non-existing collection
+				this.db.createCollection(collectionName, (error, collection) => {
+					if (error) reject(error);
+					else {
+						console.log("A new collection " + collectionName.cyan + " has been created.");
+						resolve(collection);
+					}
+				});
+			} else resolve(collection);
 		});
 	});
 };
@@ -23,11 +30,11 @@ CollectionDriver.prototype.getCollection = function(collectionName) {
 /*
 * Searches the collection for a specified document
 */
-CollectionDriver.prototype.findDocument = function(collectionName, documentId) {
+CollectionDriver.prototype.findDocument = function(collectionName, query) {
 	return new Promise((resolve, reject) => {
 		this.getCollection(collectionName).then((collection) => {
 			// findOne method was deemed deprecated for a while but since then re-introduced due to the popular revolt
-			return collection.findOne({'_id': ObjectID(documentId)});
+			return collection.findOne(query);
 		}).then((document) => {
 			resolve(document);
 		}).catch((error) => {
@@ -60,7 +67,7 @@ CollectionDriver.prototype.insertDocuments = function(collectionName, documents)
 		this.getCollection(collectionName).then((collection) => {
 			return collection.insertMany(documents);
 		}).then((result) => {
-			resolve(result.insertedCount + ' new documents inserted into the "' + collectionName.cyan + '" collection.');
+			resolve(result.insertedCount + " new documents inserted into the " + collectionName.cyan + " collection.");
 		}).catch((error) => {
 			reject(error);
 		});
@@ -75,7 +82,7 @@ CollectionDriver.prototype.truncateCollection = function(collectionName) {
 		this.getCollection(collectionName).then((collection) => {
 			return collection.remove();
 		}).then((result) => {
-			resolve('Collection "' + collectionName.cyan + '" has been truncated.');
+			resolve("Collection " + collectionName.cyan + " has been truncated.");
 		}).catch((error) => {
 			reject(error);
 		});
@@ -92,7 +99,7 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 			// Update multiple docs - without a selector or optional parameters
 			return collection.updateMany({}, { $rename: fields }, null);
 		}).then((result) => {
-	    	resolve('The following fields in the "' + collectionName.cyan + '" collection were renamed: ' + JSON.stringify(fields) + '.');
+	    	resolve("The following fields in the " + collectionName.cyan + " collection were renamed: " + JSON.stringify(fields) + ".");
 	    }).catch((error) => {
 	    	reject(error);
 	    });

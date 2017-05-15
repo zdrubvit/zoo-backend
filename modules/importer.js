@@ -57,11 +57,11 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 Importer.prototype.importClassifications = function() {
 	return new Promise((resolve, reject) => {
 		var url = this.endpoint + config.opendata.resources.classifications;
-		var collectionName = 'classifications';
+		var collectionName = config.mongodb.collectionNames.classifications;
 
 		// Make the received data available for the nested functions through a closure
 		this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
-			console.log(data.result.records.length + ' records received from the "classifications" table.');
+			console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
 			
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				console.log(result);
@@ -79,24 +79,71 @@ Importer.prototype.importClassifications = function() {
 
 				resolve('All the animal classifications have been imported successfully.');
 			})
-			.catch((error) => {
-				reject(error);
-			});
-		}, console.error);
+			.catch(reject);
+		}, reject);
 	});
 };
 
 Importer.prototype.importLexicon = function() {
-	var url = this.endpoint + config.opendata.resources.lexicon;
-	var collectionName = 'lexicon';
+	return new Promise((resolve, reject) => {
+		var url = this.endpoint + config.opendata.resources.lexicon;
+		var collectionName = config.mongodb.collectionNames.lexicon;
 
-	this.getOpenData(url, collectionName, config.filterColumns.lexicon).then((data) => {
-		console.log(data.result.records.length + ' records received from the "animals" table.');
+		this.getOpenData(url, collectionName, config.filterColumns.lexicon).then((data) => {
+			console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+				
+			this.collectionDriver.truncateCollection(collectionName).then((result) => {
+				console.log(result);
 			
+				return this.transformLexiconDocuments(data.result.records);
+			})
+			.then((documents) => {
+				return this.collectionDriver.insertDocuments(collectionName, documents);
+			})
+			.then((result) => {
+				console.log(result);
+
+				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.lexicon);
+			})
+			.then(resolve)
+			.catch(reject);
+		}, reject);
+	});
+};
+
+Importer.prototype.importEvents = function() {
+	var url = this.endpoint + config.opendata.resources.events;
+	var collectionName = config.mongodb.collectionNames.events;
+
+	this.getOpenData(url, collectionName, config.filterColumns.events).then((data) => {
+		console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+		
 		this.collectionDriver.truncateCollection(collectionName).then((result) => {
 			console.log(result);
 		
-			return this.transformLexiconDocuments(data.result.records);
+			return this.collectionDriver.insertDocuments(collectionName, data.result.records);
+		})
+		.then((result) => {
+			console.log(result);
+
+			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.events);
+		})
+		.then(console.log)
+		.catch(console.error);
+	}, console.error);
+};
+
+Importer.prototype.importAdoptions = function() {
+	var url = this.endpoint + config.opendata.resources.adoptions;
+	var collectionName = config.mongodb.collectionNames.adoptions;
+
+	this.getOpenData(url, collectionName, config.filterColumns.adoptions).then((data) => {
+		console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+		
+		this.collectionDriver.truncateCollection(collectionName).then((result) => {
+			console.log(result);
+
+			return this.linkAdoptionsToLexicon(config.mongodb.collectionNames.lexicon, data.result.records);
 		})
 		.then((documents) => {
 			return this.collectionDriver.insertDocuments(collectionName, documents);
@@ -104,7 +151,7 @@ Importer.prototype.importLexicon = function() {
 		.then((result) => {
 			console.log(result);
 
-			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.lexicon);
+			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.adoptions);
 		})
 		.then(console.log)
 		.catch(console.error);
@@ -116,7 +163,7 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 		var documentsLength = documents.length;
 		var documentsDone = 0;
 
-		documents.forEach((document, index) => {
+		documents.forEach((document) => {
 			// If the image is absent, try to pull it out of the description in case there's still some HTML present
 			if (document.image_src == '') {
 				// Load the description as a JQuery-like object and traverse it
@@ -136,6 +183,26 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 
 			// All the documents have been transformed -> resolve the promise
 			if(++documentsDone === documentsLength) resolve(documents);
+		});
+	});
+};
+
+Importer.prototype.linkAdoptionsToLexicon = function(lexiconCollectionName, documents) {
+	return new Promise((resolve, reject) => {
+		var documentsLength = documents.length;
+		var documentsDone = 0;
+
+		documents.forEach((document) => {
+			this.collectionDriver.findDocument(lexiconCollectionName, {'name': document.nazev_cz}).then((lexiconDocument) => {
+				if (lexiconDocument != null) document.lexicon_id = lexiconDocument._id;
+				else console.log("The adoptee animal " + document.nazev_cz.yellow + " was not found in the lexicon.");
+			})
+			.catch(console.error)
+			.then(() => {
+				// Equivalent of a "finally" structure
+				if(++documentsDone === documentsLength) resolve(documents);
+			});
+			
 		});
 	});
 };
