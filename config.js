@@ -56,12 +56,16 @@ config.fieldMapping.classifications = {
 config.fieldMapping.lexicon = {
 	'id': 'opendata_id',
 	'title': 'name',
+	'latin_title': 'latin_name',
 	'classes': 'class',
 	'image_src': 'image',
 	'food_note': 'food_detail',
 	'spread_note': 'spread_detail',
+	'biotop': 'biotope',
 	'biotopes_note': 'biotopes_detail',
-	'projects_note': 'projects'
+	'projects_note': 'projects',
+	'localities_title': 'location',
+	'localities_url': 'location_url'
 };
 config.fieldMapping.events = {
 	'summary': 'title'
@@ -74,8 +78,8 @@ config.fieldMapping.adoptions = {
 };
 
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
-config.jsonserialize = {};
-config.jsonserialize.lexicon = ['opendata_id', 'name', 'latin_title', 'class', 'order', 'description', 'image', 'continents', 'spread_detail', 
-	'biotop', 'biotopes_detail', 'food', 'food_detail', 'proportions', 'reproduction', 'attractions', 'projects', 'breeding', 'localities_title', 'localities_url'];
+config.api = {};
+config.api.lexicon = ['opendata_id', 'name', 'latin_name', 'class', 'order', 'description', 'image', 'continents', 'spread_detail', 
+	'biotop', 'biotopes_detail', 'food', 'food_detail', 'proportions', 'reproduction', 'attractions', 'projects', 'breeding', 'location', 'location_url'];
 
 exports.config = config;

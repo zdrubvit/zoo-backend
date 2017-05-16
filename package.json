@@ -26,8 +26,10 @@
     "cheerio": "^0.22.0",
     "colors": "^1.1.2",
     "express": "^4.15.2",
+    "joi": "^10.4.2",
     "jsonapi-serializer": "^3.5.3",
     "mongodb": "^2.2.24",
+    "string": "^3.3.3",
     "striptags": "^3.0.1"
   },
   "devDependencies": {

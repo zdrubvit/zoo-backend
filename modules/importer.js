@@ -2,6 +2,7 @@ const http = require('http');
 const cheerio = require('cheerio');
 const striptags = require('striptags');
 const colors = require('colors');
+const S = require('string');
 const config = require('../config').config;
 
 Importer = function(endpoint, collectionDriver) {
@@ -158,6 +159,13 @@ Importer.prototype.importAdoptions = function() {
 	}, console.error);
 };
 
+Importer.prototype.splitClassificationString = function(classification) {
+	return {
+		'name': S(classification).between('', '(').trim().s,
+		'latin_name': S(classification).between('(', ')').s
+	};
+}
+
 Importer.prototype.transformLexiconDocuments = function(documents) {
 	return new Promise((resolve, reject) => {
 		var documentsLength = documents.length;
@@ -180,6 +188,15 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 
 			// Get rid of the HTML tags and trim the resulting string
 			document.description = striptags(document.description).trim();
+
+			// Split the czech and latin names in the classification
+			if (document.classes) {
+				document.classes = this.splitClassificationString(document.classes);
+			}
+
+			if (document.order) {
+				document.order = this.splitClassificationString(document.order);
+			}
 
 			// All the documents have been transformed -> resolve the promise
 			if(++documentsDone === documentsLength) resolve(documents);
