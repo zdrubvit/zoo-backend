@@ -3,8 +3,9 @@ const colors = require("colors");
 /*
 * Basic constructor.
 */
-CollectionDriver = function(db) {
+CollectionDriver = function(db, logger) {
 	this.db = db;
+	this.logger = logger;
 };
 
 /*
@@ -13,13 +14,13 @@ CollectionDriver = function(db) {
 CollectionDriver.prototype.getCollection = function(collectionName, createNonExisting = true) {
 	return new Promise((resolve, reject) => {
 		this.db.collection(collectionName, {'strict': true}, (error, collection) => {
-			if(error) {
+			if (error) {
 				if (createNonExisting) {
 					// Try to create the non-existing collection
 					this.db.createCollection(collectionName, (error, collection) => {
 						if (error) reject(error);
 						else {
-							console.log("A new collection " + collectionName.cyan + " has been created.");
+							this.logger.log("info", "A new collection " + collectionName.cyan + " has been created.");
 							resolve(collection);
 						}
 					});
@@ -112,9 +113,9 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 * Force-closes the underlying db connection
 */
 CollectionDriver.prototype.closeDB = function() {
-	this.db.close(true, function(error, result) {
-		if(error) console.error(error);
-		else console.log(result);
+	this.db.close(true, (error, result) => {
+		if (error) this.logger.log("error", error);
+		else this.logger.log("info", result);
 	});
 };
 

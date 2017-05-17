@@ -3,20 +3,24 @@ const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
 const JSONAPIError = require("jsonapi-serializer").Error;
 const CollectionDriver = require("./modules/collection-driver").CollectionDriver;
+const Logger = require("./modules/logger").Logger;
 const config = require("./config").config;
 
 // Connect to the DB and then reuse the instance across all the requests thanks to its own connection pool
 MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
-	console.log("A connection to the database " + db.databaseName + " has been set.");
+	// Instantiate the logger
+	var logger = new Logger(db);
+
+	logger.log("info", "A connection to the database " + db.databaseName + " has been opened.");
 
 	// Let the driver instance be accessible throughout the app
-	var collectionDriver = new CollectionDriver(db);
+	var collectionDriver = new CollectionDriver(db, logger);
 	app.set("collectionDriver", collectionDriver);
 
 	// Log the request
 	app.use(function(req, res, next) {
 		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
-		console.log("A new request to " + url.cyan + " received from the IP " + req.ip);
+		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip);
 
 		return next();
 	})
@@ -27,7 +31,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {
 		var error = new JSONAPIError(err);
-		console.log("Error " + err.status + " occurred with the following message: " + err.detail);
+		logger.log("error", "Error " + err.status + " occurred with the following message: " + err.detail);
 
 		res.status(err.status).json(error);
 	});
@@ -44,7 +48,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	});
 
 	app.listen(3000, function() {
-		console.log("The server is listening on port 3000...");
+		logger.log("info", "The server is listening on port " + "3000...".red);
 	});
 }, console.error);
 // what happens when an error hits?

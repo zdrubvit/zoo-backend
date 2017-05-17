@@ -11,7 +11,7 @@ var lexiconSerializer;
 
 // Init the necessary variables
 routes.use("/", function(req, res, next) {
-	// Retrieve the driver instance for later use
+	// Retrieve the driver instances for later use
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Create a serializer instance with perfected config options
