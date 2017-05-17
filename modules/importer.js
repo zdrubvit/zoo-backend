@@ -1,41 +1,42 @@
-const http = require('http');
-const cheerio = require('cheerio');
-const striptags = require('striptags');
-const colors = require('colors');
-const S = require('string');
-const config = require('../config').config;
+const http = require("http");
+const cheerio = require("cheerio");
+const striptags = require("striptags");
+const colors = require("colors");
+const S = require("string");
+const config = require("../config").config;
 
 Importer = function(endpoint, collectionDriver) {
 	this.endpoint = endpoint;
 	this.collectionDriver = collectionDriver;
 };
 
+// Request the data and parse them
 Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 	return new Promise((resolve, reject) => {
 		// hack around the Opendata server's default limit
-		url += '&limit=10000';
+		url += "&limit=10000";
 
 		if(fields) {
-			let fieldsQuery = '&fields=' + fields.join();
+			let fieldsQuery = "&fields=" + fields.join();
 
 			url += fieldsQuery;
 		}
 
-		if(debug) console.log('Getting the data from a URL: ' + url);
+		if(debug) console.log("Getting the data from a URL: " + url);
 
 		http.get(url, function(res) {
 			var chunks = 0;
-			var buffer = '';
+			var buffer = "";
 
-			res.setEncoding('utf8');
+			res.setEncoding("utf8");
 
-			res.on('data', function(chunk) {
+			res.on("data", function(chunk) {
 				buffer += chunk;
 				chunks++;
 			});
 
-			res.on('end', function() {
-				if(debug) console.log('Total number of received data chunks: ' + chunks + ' with a cumulative size of: ' + buffer.length + ' bytes.');
+			res.on("end", function() {
+				if(debug) console.log("Total number of received data chunks: " + chunks + " with a cumulative size of: " + buffer.length + " bytes.");
 
 				try {
 					var data = JSON.parse(buffer);
@@ -49,7 +50,7 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 
 				resolve(data);
 			});
-		}).on('error', function(error) {
+		}).on("error", function(error) {
 			reject(error);
 		});
 	});
@@ -62,7 +63,7 @@ Importer.prototype.importClassifications = function() {
 
 		// Make the received data available for the nested functions through a closure
 		this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
-			console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+			console.log(data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 			
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				console.log(result);
@@ -78,7 +79,7 @@ Importer.prototype.importClassifications = function() {
 			.then((result) => {
 				console.log(result);
 
-				resolve('All the animal classifications have been imported successfully.');
+				resolve("All the animal classifications have been imported successfully.");
 			})
 			.catch(reject);
 		}, reject);
@@ -91,7 +92,7 @@ Importer.prototype.importLexicon = function() {
 		var collectionName = config.mongodb.collectionNames.lexicon;
 
 		this.getOpenData(url, collectionName, config.filterColumns.lexicon).then((data) => {
-			console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+			console.log(data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 				
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				console.log(result);
@@ -117,7 +118,7 @@ Importer.prototype.importEvents = function() {
 	var collectionName = config.mongodb.collectionNames.events;
 
 	this.getOpenData(url, collectionName, config.filterColumns.events).then((data) => {
-		console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+		console.log(data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 		
 		this.collectionDriver.truncateCollection(collectionName).then((result) => {
 			console.log(result);
@@ -139,7 +140,7 @@ Importer.prototype.importAdoptions = function() {
 	var collectionName = config.mongodb.collectionNames.adoptions;
 
 	this.getOpenData(url, collectionName, config.filterColumns.adoptions).then((data) => {
-		console.log(data.result.records.length + ' records received from the "' + collectionName.cyan + '" table.');
+		console.log(data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 		
 		this.collectionDriver.truncateCollection(collectionName).then((result) => {
 			console.log(result);
@@ -159,13 +160,15 @@ Importer.prototype.importAdoptions = function() {
 	}, console.error);
 };
 
+// Split the incoming string and make it into an object
 Importer.prototype.splitClassificationString = function(classification) {
 	return {
-		'name': S(classification).between('', '(').trim().s,
-		'latin_name': S(classification).between('(', ')').s
+		"name": S(classification).between("", "(").trim().s,
+		"latin_name": S(classification).between("(", ")").s
 	};
 }
 
+// Modify the lexicon animal records
 Importer.prototype.transformLexiconDocuments = function(documents) {
 	return new Promise((resolve, reject) => {
 		var documentsLength = documents.length;
@@ -173,14 +176,14 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 
 		documents.forEach((document) => {
 			// If the image is absent, try to pull it out of the description in case there's still some HTML present
-			if (document.image_src == '') {
+			if (document.image_src == "") {
 				// Load the description as a JQuery-like object and traverse it
 				var $ = cheerio.load(document.description);
 
-				var image = $('img').first().attr('src');
+				var image = $("img").first().attr("src");
 				if(image) {
 					// Fix the case when there's no domain specified
-					if(image.indexOf('images') === 0) image = config.zoo.host + image;
+					if(image.indexOf("images") === 0) image = config.zoo.host + image;
 
 					document.image_src = image;
 				}
@@ -204,13 +207,14 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 	});
 };
 
+// For each animal that can be adopted look for its matching record in the lexicon
 Importer.prototype.linkAdoptionsToLexicon = function(lexiconCollectionName, documents) {
 	return new Promise((resolve, reject) => {
 		var documentsLength = documents.length;
 		var documentsDone = 0;
 
 		documents.forEach((document) => {
-			this.collectionDriver.findDocument(lexiconCollectionName, {'name': document.nazev_cz}).then((lexiconDocument) => {
+			this.collectionDriver.findDocument(lexiconCollectionName, {"name": document.nazev_cz}).then((lexiconDocument) => {
 				if (lexiconDocument != null) document.lexicon_id = lexiconDocument._id;
 				else console.log("The adoptee animal " + document.nazev_cz.yellow + " was not found in the lexicon.");
 			})

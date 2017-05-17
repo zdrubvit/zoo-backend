@@ -1,4 +1,4 @@
-const colors = require('colors');
+const colors = require("colors");
 
 /*
 * Basic constructor.
@@ -10,18 +10,20 @@ CollectionDriver = function(db) {
 /*
 * Returns a collection. It's non-existence is caught thanks to the strict mode.
 */
-CollectionDriver.prototype.getCollection = function(collectionName) {
+CollectionDriver.prototype.getCollection = function(collectionName, createNonExisting = true) {
 	return new Promise((resolve, reject) => {
 		this.db.collection(collectionName, {'strict': true}, (error, collection) => {
 			if(error) {
-				// Try to create the non-existing collection
-				this.db.createCollection(collectionName, (error, collection) => {
-					if (error) reject(error);
-					else {
-						console.log("A new collection " + collectionName.cyan + " has been created.");
-						resolve(collection);
-					}
-				});
+				if (createNonExisting) {
+					// Try to create the non-existing collection
+					this.db.createCollection(collectionName, (error, collection) => {
+						if (error) reject(error);
+						else {
+							console.log("A new collection " + collectionName.cyan + " has been created.");
+							resolve(collection);
+						}
+					});
+				} else reject(error);
 			} else resolve(collection);
 		});
 	});
