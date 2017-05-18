@@ -1,14 +1,12 @@
 const http = require("http");
-const cheerio = require("cheerio");
-const striptags = require("striptags");
 const colors = require("colors");
-const S = require("string");
 const config = require("../config").config;
 
-Importer = function(endpoint, collectionDriver, logger) {
+Importer = function(endpoint, logger, collectionDriver, transformer) {
 	this.endpoint = endpoint;
-	this.collectionDriver = collectionDriver;
 	this.logger = logger;
+	this.collectionDriver = collectionDriver;
+	this.transformer = transformer;
 };
 
 // Request the data and parse them
@@ -68,7 +66,7 @@ Importer.prototype.importClassifications = function() {
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				this.logger.log("info", result);
 			
-				return this.transformClassificationDocuments(data.result.records);
+				return this.transformDocuments(data.result.records, this.transformer.transformClassificationDocument);
 			})
 			.then((documents) => {
 				return this.collectionDriver.insertDocuments(collectionName, documents);
@@ -99,7 +97,7 @@ Importer.prototype.importLexicon = function() {
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				this.logger.log("info", result);
 			
-				return this.transformLexiconDocuments(data.result.records);
+				return this.transformDocuments(data.result.records, this.transformer.transformLexiconDocument);
 			})
 			.then((documents) => {
 				return this.collectionDriver.insertDocuments(collectionName, documents);
@@ -186,7 +184,7 @@ Importer.prototype.importLocations = function() {
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				this.logger.log("info", result);
 			
-				return this.transformLocationDocuments(data.result.records);
+				return this.transformDocuments(data.result.records, this.transformer.transformLocationDocument);
 			})
 			.then((documents) => {
 				return this.collectionDriver.insertDocuments(collectionName, documents);
@@ -220,91 +218,19 @@ Importer.prototype.importLexiconAndAdoptions = function() {
 			resolve("The lexicon / adoptions resources have been handled successfully.");
 		})
 		.catch((error) => {
-			reject("The lexicon / adoptions import failed with the following error: " + error);
+			reject(error + " in lexicon / adoptions import.");
 		});
 	});
 }
 
-// Split the incoming string and make it into an object
-Importer.prototype.splitClassificationString = function(classification) {
-	return {
-		"name": S(classification).between("", "(").trim().s,
-		"latin_name": S(classification).between("(", ")").s
-	};
-}
-
-// Modify the lexicon animal records
-Importer.prototype.transformLexiconDocuments = function(documents) {
+// Modify the incoming records using the given transforming function
+Importer.prototype.transformDocuments = function(documents, transformFunction) {
 	return new Promise((resolve, reject) => {
 		var documentsLength = documents.length;
 		var documentsDone = 0;
 
 		documents.forEach((document) => {
-			// If the image is absent, try to pull it out of the description in case there's still some HTML present
-			if (document.image_src == "") {
-				// Load the description as a JQuery-like object and traverse it
-				var $ = cheerio.load(document.description);
-
-				var image = $("img").first().attr("src");
-				if(image) {
-					// Fix the case when there's no domain specified
-					if(image.indexOf("images") === 0) image = config.zoo.host + image;
-
-					document.image_src = image;
-				}
-			}
-
-			// Get rid of the HTML tags and trim the resulting string
-			document.description = striptags(document.description).trim();
-
-			// Split the czech and latin names in the classification
-			if (document.classes) {
-				document.classes = this.splitClassificationString(document.classes);
-			}
-
-			if (document.order) {
-				document.order = this.splitClassificationString(document.order);
-			}
-
-			// All the documents have been transformed -> resolve the promise
-			if(++documentsDone === documentsLength) resolve(documents);
-		});
-	});
-};
-
-// Modify the classification records
-Importer.prototype.transformClassificationDocuments = function(documents) {
-	return new Promise((resolve, reject) => {
-		var documentsLength = documents.length;
-		var documentsDone = 0;
-
-		documents.forEach((document) => {
-			// Split the czech and latin names in the classification
-			if (document.d) {
-				document.d = this.splitClassificationString(document.d);
-			}
-
-			// All the documents have been transformed -> resolve the promise
-			if(++documentsDone === documentsLength) resolve(documents);
-		});
-	});
-};
-
-// Modify the location records
-Importer.prototype.transformLocationDocuments = function(documents) {
-	return new Promise((resolve, reject) => {
-		var documentsLength = documents.length;
-		var documentsDone = 0;
-
-		documents.forEach((document) => {
-			// Split the czech and latin names in the classification
-			document.gps = {
-				"x": document.gps_x,
-				"y": document.gps_y
-			};
-
-			delete document.gps_x;
-			delete document.gps_y;
+			transformFunction(document);
 
 			// All the documents have been transformed -> resolve the promise
 			if(++documentsDone === documentsLength) resolve(documents);
