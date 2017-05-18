@@ -23,7 +23,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip);
 
 		return next();
-	})
+	});
 
 	// Set the routes to their correct paths
 	app.use("/lexicon", require("./routes/lexicon"));
@@ -55,5 +55,3 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 		logger.log("info", "The server is listening on port " + "3000...".red);
 	});
 }, console.error);
-// what happens when an error hits?
-// there is no check if the db exists, the connection happily goes on -> check the db list

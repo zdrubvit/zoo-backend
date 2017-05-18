@@ -10,7 +10,7 @@ var collectionDriver;
 var lexiconSerializer;
 
 // Init the necessary variables
-routes.use("/", function(req, res, next) {
+routes.use(function(req, res, next) {
 	// Retrieve the driver instances for later use
 	collectionDriver = req.app.get("collectionDriver");
 
@@ -30,12 +30,12 @@ routes.use("/", function(req, res, next) {
 });
 
 // Validate the incoming query parameters
-routes.use("/", function(req, res, next) {
+routes.use(function(req, res, next) {
 	var schemaKeys = {};
 
-	// Every parameter has to be an alphanumeric string with certain length restrictions
+	// Every parameter has to be a string with certain length restrictions
 	for (let i = 0; i < fieldNames.length; i++) {
-		schemaKeys[fieldNames[i]] = Joi.string().alphanum().min(1).max(100);
+		schemaKeys[fieldNames[i]] = Joi.string().min(1).max(100);
 	}
 
 	// Append the pagination options

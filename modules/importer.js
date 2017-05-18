@@ -21,7 +21,7 @@ Importer.prototype.getOpenData = function(url, resource, fields) {
 			url += fieldsQuery;
 		}
 
-		this.logger.log("info", "Getting the data from a URL: " + url);
+		this.logger.log("info", "Getting the data from a URL: " + url.underline);
 
 		http.get(url, (res) => {
 			var chunks = 0;
@@ -35,7 +35,7 @@ Importer.prototype.getOpenData = function(url, resource, fields) {
 			});
 
 			res.on("end", () => {
-				this.logger.log("info", "Total number of received data chunks: " + chunks + " with a cumulative size of: " + buffer.length + " bytes.");
+				this.logger.log("info", "Total number of received " + resource.cyan + " data chunks: " + chunks + " with a cumulative size of: " + buffer.length.toString().white + " bytes.");
 
 				try {
 					var data = JSON.parse(buffer);
@@ -215,7 +215,7 @@ Importer.prototype.importLexiconAndAdoptions = function() {
 		})
 		.then((result) => {
 			this.logger.log("info", result);
-			resolve("The lexicon / adoptions resources have been handled successfully.");
+			resolve("The " + "lexicon / adoptions".cyan + " resources have been handled successfully.");
 		})
 		.catch((error) => {
 			reject(error + " in lexicon / adoptions import.");

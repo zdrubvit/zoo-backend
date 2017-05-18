@@ -87,6 +87,6 @@ config.fieldMapping.locations = {
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.api = {};
 config.api.lexicon = ["opendata_id", "name", "latin_name", "class.name", "order.name", "description", "image", "continents", "spread_detail", 
-	"biotop", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
+	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 
 exports.config = config;
