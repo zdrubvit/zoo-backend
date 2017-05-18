@@ -31,6 +31,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {
 		var error = new JSONAPIError(err);
+		
 		logger.log("error", "Error " + err.status + " occurred with the following message: " + err.detail);
 
 		res.status(err.status).json(error);
@@ -43,6 +44,9 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 			"title": "Not found",
 			"detail": "There's no resource matching the requested URL"
 		});
+		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
+		logger.log("error", "Error 404 occurred with the following request: " + url);
 
   		res.status(404).json(error);
 	});

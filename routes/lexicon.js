@@ -59,15 +59,27 @@ routes.use("/", function(req, res, next) {
 
 routes.get("/", function(req, res, next) {
 	var query = {};
+	var limit = 0;
+	var offset = 0;
 
-	// Loop through the query parameters, check if they're proper field names and if they are, add them to the query
+	// Loop through the query parameters
 	for (property in req.query) {
+		// ...check if they're proper field names and if they are, add them to the query
 		if (fieldNames.indexOf(property) != -1) {
 			query[property] = new RegExp(req.query[property], 'i');
 		}
+
+		// ...now look for the limiting options
+		if (property == "limit") {
+			limit = parseInt(req.query[property]);
+		}
+
+		if (property == "offset") {
+			offset = parseInt(req.query[property]);
+		}
 	}
 
-	collectionDriver.findAllDocuments(collectionName, query).then((documents) => {
+	collectionDriver.findAllDocuments(collectionName, query, limit, offset).then((documents) => {
 		// The argument is either an array of documents or an empty array
 		var payload = lexiconSerializer.serialize(documents);
 

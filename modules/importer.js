@@ -12,7 +12,7 @@ Importer = function(endpoint, collectionDriver, logger) {
 };
 
 // Request the data and parse them
-Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
+Importer.prototype.getOpenData = function(url, resource, fields) {
 	return new Promise((resolve, reject) => {
 		// hack around the Opendata server's default limit
 		url += "&limit=10000";
@@ -23,7 +23,7 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 			url += fieldsQuery;
 		}
 
-		if(debug) this.logger.log("info", "Getting the data from a URL: " + url);
+		this.logger.log("info", "Getting the data from a URL: " + url);
 
 		http.get(url, (res) => {
 			var chunks = 0;
@@ -37,7 +37,7 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 			});
 
 			res.on("end", () => {
-				if(debug) this.logger.log("info", "Total number of received data chunks: " + chunks + " with a cumulative size of: " + buffer.length + " bytes.");
+				this.logger.log("info", "Total number of received data chunks: " + chunks + " with a cumulative size of: " + buffer.length + " bytes.");
 
 				try {
 					var data = JSON.parse(buffer);
@@ -45,8 +45,7 @@ Importer.prototype.getOpenData = function(url, resource, fields, debug = true) {
 					// Pair the resulting data with its rightful resource name, so that they can be matched afterwards
 					data.resource = resource;
 				} catch(error) {
-					this.logger.log("error", error);
-					this.logger.log("error", buffer);
+					this.logger.log("error", "An error during JSON parsing occured: " + error + " in the string: " + buffer);
 				}
 
 				resolve(data);
@@ -69,7 +68,10 @@ Importer.prototype.importClassifications = function() {
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				this.logger.log("info", result);
 			
-				return this.collectionDriver.insertDocuments(collectionName, data.result.records);
+				return this.transformClassificationDocuments(data.result.records);
+			})
+			.then((documents) => {
+				return this.collectionDriver.insertDocuments(collectionName, documents);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
@@ -79,8 +81,7 @@ Importer.prototype.importClassifications = function() {
 			})
 			.then((result) => {
 				this.logger.log("info", result);
-
-				resolve("All the animal classifications have been imported successfully.");
+				resolve("The " + collectionName.cyan + " finished successfully.");
 			})
 			.catch(reject);
 		}, reject);
@@ -108,70 +109,91 @@ Importer.prototype.importLexicon = function() {
 
 				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.lexicon);
 			})
-			.then(resolve)
+			.then((result) => {
+				this.logger.log("info", result);
+				resolve("The " + collectionName.cyan + " finished successfully.");
+			})
 			.catch(reject);
 		}, reject);
 	});
 };
 
 Importer.prototype.importEvents = function() {
-	var url = this.endpoint + config.opendata.resources.events;
-	var collectionName = config.mongodb.collectionNames.events;
+	return new Promise((resolve, reject) => {
+		var url = this.endpoint + config.opendata.resources.events;
+		var collectionName = config.mongodb.collectionNames.events;
 
-	this.getOpenData(url, collectionName, config.filterColumns.events).then((data) => {
-		this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
-		
-		this.collectionDriver.truncateCollection(collectionName).then((result) => {
-			this.logger.log("info", result);
-		
-			return this.collectionDriver.insertDocuments(collectionName, data.result.records);
-		})
-		.then((result) => {
-			this.logger.log("info", result);
+		this.getOpenData(url, collectionName, config.filterColumns.events).then((data) => {
+			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
+			
+			this.collectionDriver.truncateCollection(collectionName).then((result) => {
+				this.logger.log("info", result);
+			
+				return this.collectionDriver.insertDocuments(collectionName, data.result.records);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
 
-			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.events);
-		})
-		.then((result) => {
-			this.logger.log("info", result);
-		})
-		.catch((error) => {
-			this.logger.log("error", error);
-		});
-	}, (error) => {
-		this.logger.log("error", error);
+				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.events);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
+				resolve("The " + collectionName.cyan + " finished successfully.");
+			})
+			.catch(reject);
+		}, reject);
 	});
 };
 
 Importer.prototype.importAdoptions = function() {
-	var url = this.endpoint + config.opendata.resources.adoptions;
-	var collectionName = config.mongodb.collectionNames.adoptions;
+	return new Promise((resolve, reject) => {
+		var url = this.endpoint + config.opendata.resources.adoptions;
+		var collectionName = config.mongodb.collectionNames.adoptions;
 
-	this.getOpenData(url, collectionName, config.filterColumns.adoptions).then((data) => {
-		this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
-		
-		this.collectionDriver.truncateCollection(collectionName).then((result) => {
-			this.logger.log("info", result);
+		this.getOpenData(url, collectionName, config.filterColumns.adoptions).then((data) => {
+			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
+			
+			this.collectionDriver.truncateCollection(collectionName).then((result) => {
+				this.logger.log("info", result);
 
-			return this.linkAdoptionsToLexicon(config.mongodb.collectionNames.lexicon, data.result.records);
-		})
-		.then((documents) => {
-			return this.collectionDriver.insertDocuments(collectionName, documents);
-		})
-		.then((result) => {
-			this.logger.log("info", result);
+				return this.linkAdoptionsToLexicon(config.mongodb.collectionNames.lexicon, data.result.records);
+			})
+			.then((documents) => {
+				return this.collectionDriver.insertDocuments(collectionName, documents);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
 
-			return this.collectionDriver.renameFields(collectionName, config.fieldMapping.adoptions);
-		})
-		.then((result) => {
-			this.logger.log("info", result);
-		})
-		.catch((error) => {
-			this.logger.log("error", error);
-		});
-	}, (error) => {
-		this.logger.log("error", error);
+				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.adoptions);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
+				resolve("The " + collectionName.cyan + " finished successfully.");
+			})
+			.catch(reject);
+		}, reject);
 	});
 };
+
+// This method wraps the two connected resources into a single promise so that it can be handled as such
+Importer.prototype.importLexiconAndAdoptions = function() {
+	return new Promise((resolve, reject) => {
+		// The animal lexicon is the first on the line
+		this.importLexicon().then((result) => {
+			this.logger.log("info", result);
+
+			// Now we can start taking care of the animal adoptions that rely partially on the lexicon
+			return this.importAdoptions();
+		})
+		.then((result) => {
+			this.logger.log("info", result);
+			resolve("The lexicon / adoptions resources have been handled successfully.");
+		})
+		.catch((error) => {
+			reject("The lexicon / adoptions import failed with the following error: " + error);
+		});
+	});
+}
 
 // Split the incoming string and make it into an object
 Importer.prototype.splitClassificationString = function(classification) {
@@ -212,6 +234,24 @@ Importer.prototype.transformLexiconDocuments = function(documents) {
 
 			if (document.order) {
 				document.order = this.splitClassificationString(document.order);
+			}
+
+			// All the documents have been transformed -> resolve the promise
+			if(++documentsDone === documentsLength) resolve(documents);
+		});
+	});
+};
+
+// Modify the classification records
+Importer.prototype.transformClassificationDocuments = function(documents) {
+	return new Promise((resolve, reject) => {
+		var documentsLength = documents.length;
+		var documentsDone = 0;
+
+		documents.forEach((document) => {
+			// Split the czech and latin names in the classification
+			if (document.d) {
+				document.d = this.splitClassificationString(document.d);
 			}
 
 			// All the documents have been transformed -> resolve the promise

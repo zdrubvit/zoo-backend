@@ -14,16 +14,21 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// Instantiate the importer and start filling up the database
 	var importer = new Importer(endpoint, collectionDriver, logger);
 
-	// The animal lexicon is the first on the line
-	importer.importLexicon().then((result) => {
-		logger.log("info", result);
-
-		// Now we can start taking care of the animal adoptions that rely partially on the lexicon
-		importer.importAdoptions();
-	}, (error) => {
-		logger.log("error", "The lexicon import failed with the following error: " + error);
+	// Start the import
+	Promise.all([
+		importer.importLexiconAndAdoptions(),
+		importer.importClassifications(),
+		importer.importEvents()
+	])
+	.then((results) => {
+		// All the resources have been imported
+		logger.log("info", results.toString());
+	})
+	.catch((reason) => {
+		logger.log("error", "The import failed with the following reason: " + reason);
+	})
+	.then(() => {
+		// Whether there was an error or not, close the connection
+		collectionDriver.closeDB();
 	});
-
-	// importer.importClassifications();
-	// importer.importEvents();
 }, console.error);

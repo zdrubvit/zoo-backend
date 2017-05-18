@@ -33,7 +33,7 @@ CollectionDriver.prototype.getCollection = function(collectionName, createNonExi
 /*
 * Searches the collection for a specified document
 */
-CollectionDriver.prototype.findDocument = function(collectionName, query) {
+CollectionDriver.prototype.findDocument = function(collectionName, query = {}) {
 	return new Promise((resolve, reject) => {
 		this.getCollection(collectionName).then((collection) => {
 			// findOne method was deemed deprecated for a while but since then re-introduced due to the popular revolt
@@ -49,11 +49,11 @@ CollectionDriver.prototype.findDocument = function(collectionName, query) {
 /*
 * Searches the collection for documents with certain filters
 */
-CollectionDriver.prototype.findAllDocuments = function(collectionName, query) {
+CollectionDriver.prototype.findAllDocuments = function(collectionName, query = {}, limit = 0, offset = 0) {
 	return new Promise((resolve, reject) => {
 		this.getCollection(collectionName).then((collection) => {
 			// find method returns a cursor to iterate over
-			return collection.find(query).toArray();
+			return collection.find(query).limit(limit).skip(offset).toArray();
 		}).then((documents) => {
 			resolve(documents);
 		}).catch((error) => {
