@@ -18,7 +18,8 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	Promise.all([
 		importer.importLexiconAndAdoptions(),
 		importer.importClassifications(),
-		importer.importEvents()
+		importer.importEvents(),
+		importer.importLocations()
 	])
 	.then((results) => {
 		// All the resources have been imported
@@ -28,7 +29,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 		logger.log("error", "The import failed with the following reason: " + reason);
 	})
 	.then(() => {
-		// Whether there was an error or not, close the connection
+		// Whether there was an error or not, close the connection and subsequently the script
 		collectionDriver.closeDB();
 	});
 }, console.error);

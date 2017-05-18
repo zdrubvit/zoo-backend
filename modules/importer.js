@@ -175,6 +175,36 @@ Importer.prototype.importAdoptions = function() {
 	});
 };
 
+Importer.prototype.importLocations = function() {
+	return new Promise((resolve, reject) => {
+		var url = this.endpoint + config.opendata.resources.locations;
+		var collectionName = config.mongodb.collectionNames.locations;
+
+		this.getOpenData(url, collectionName, config.filterColumns.locations).then((data) => {
+			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
+			
+			this.collectionDriver.truncateCollection(collectionName).then((result) => {
+				this.logger.log("info", result);
+			
+				return this.transformLocationDocuments(data.result.records);
+			})
+			.then((documents) => {
+				return this.collectionDriver.insertDocuments(collectionName, documents);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
+
+				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.locations);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
+				resolve("The " + collectionName.cyan + " finished successfully.");
+			})
+			.catch(reject);
+		}, reject);
+	});
+};
+
 // This method wraps the two connected resources into a single promise so that it can be handled as such
 Importer.prototype.importLexiconAndAdoptions = function() {
 	return new Promise((resolve, reject) => {
@@ -253,6 +283,28 @@ Importer.prototype.transformClassificationDocuments = function(documents) {
 			if (document.d) {
 				document.d = this.splitClassificationString(document.d);
 			}
+
+			// All the documents have been transformed -> resolve the promise
+			if(++documentsDone === documentsLength) resolve(documents);
+		});
+	});
+};
+
+// Modify the location records
+Importer.prototype.transformLocationDocuments = function(documents) {
+	return new Promise((resolve, reject) => {
+		var documentsLength = documents.length;
+		var documentsDone = 0;
+
+		documents.forEach((document) => {
+			// Split the czech and latin names in the classification
+			document.gps = {
+				"x": document.gps_x,
+				"y": document.gps_y
+			};
+
+			delete document.gps_x;
+			delete document.gps_y;
 
 			// All the documents have been transformed -> resolve the promise
 			if(++documentsDone === documentsLength) resolve(documents);

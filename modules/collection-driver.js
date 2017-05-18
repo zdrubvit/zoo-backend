@@ -94,7 +94,7 @@ CollectionDriver.prototype.truncateCollection = function(collectionName) {
 
 /*
 * Renames the collection's fields.
-* The second argument is expected to be an object in the form of {'oldFiedd': 'newField', 'anotherOldField': 'anotherNewField', ...}
+* The second argument is expected to be an object in the form of {'oldField': 'newField', 'anotherOldField': 'anotherNewField', ...}
 */
 CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 	return new Promise((resolve, reject) => {

@@ -9,7 +9,8 @@ config.mongodb.collectionNames = {
 	"classifications": "classifications",
 	"lexicon": "lexicon",
 	"events": "events",
-	"adoptions": "adoptions"
+	"adoptions": "adoptions",
+	"locations": "locations"
 }
 
 // Opendata specifications, endpoints and resource identificators
@@ -43,6 +44,7 @@ config.filterColumns.lexicon = ["id", "title", "latin_title", "classes", "order"
 	"biotop", "biotopes_note", "food", "food_note", "proportions", "reproduction", "attractions", "projects_note", "breeding", "localities_title", "localities_url"];
 config.filterColumns.events = ["start", "end", "summary", "description"];
 config.filterColumns.adoptions = ["id", "nazev_cz", "cena", "k_prohlidce"];
+config.filterColumns.locations = ["id", "title", "alias", "ordering", "gps_x", "gps_y", "description", "url"];
 
 // Objects representing the renaming of mongodb fields in the form of {"oldField": "newField", "anotherOldField": "anotherNewField", ...}
 config.fieldMapping = {};
@@ -75,6 +77,11 @@ config.fieldMapping.adoptions = {
 	"nazev_cz": "name",
 	"cena": "price",
 	"k_prohlidce": "visit"
+};
+config.fieldMapping.locations = {
+	"id": "opendata_id",
+	"title": "name",
+	"alias": "slug"
 };
 
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
