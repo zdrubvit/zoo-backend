@@ -1,6 +1,6 @@
 require("winston-mongodb").MongoDB;
 
-// A universal logging class
+// A universal logging class, working with multiple outputs simultaneously
 Logger = function(db) {
 	this.winston = require("winston");
 

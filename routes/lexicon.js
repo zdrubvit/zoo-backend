@@ -1,49 +1,31 @@
 const routes = require("express").Router();
-const Joi = require("joi");
 const ObjectID = require("mongodb").ObjectID;
-const JSONAPISerializer = require("jsonapi-serializer").Serializer;
 const config = require("../config").config;
+const Middleware = require("./middleware").Middleware;
 
 const collectionName = config.mongodb.collectionNames.lexicon;
 const fieldNames = config.api.lexicon;
 var collectionDriver;
 var lexiconSerializer;
+var middleware;
 
 // Init the necessary variables
 routes.use(function(req, res, next) {
 	// Retrieve the driver instances for later use
 	collectionDriver = req.app.get("collectionDriver");
 
+	// Gain access to the shared methods
+	middleware = new Middleware();
+
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = new JSONAPISerializer(collectionName, {
-		"id": "_id",
-		"attributes": config.api.lexicon,
-		"pluralizeType": false,
-		"meta": {
-			"count": function(documents) {
-				return documents.length;
-			}
-		}
-	});
+	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
 
 	return next();
 });
 
 // Validate the incoming query parameters
 routes.use(function(req, res, next) {
-	var schemaKeys = {};
-
-	// Every parameter has to be a string with certain length restrictions
-	for (let i = 0; i < fieldNames.length; i++) {
-		schemaKeys[fieldNames[i]] = Joi.string().min(1).max(100);
-	}
-
-	// Append the pagination options
-	schemaKeys.limit = Joi.number().integer().min(1);
-	schemaKeys.offset = Joi.number().integer();
-
-	const schema = Joi.object().keys(schemaKeys);
-	const validation = Joi.validate(req.query, schema);
+	var validation = middleware.validateQuery(req.query, fieldNames)
 
 	// Send the "422 - Unprocessable Entity" error code (the standard JS Error object has to be traversed to get the message)
 	if (validation.error) {
@@ -86,11 +68,7 @@ routes.get("/", function(req, res, next) {
 		res.json(payload);
 	}, (error) => {
 		// In case of an error, forward the details to the main error handler (the JS Error object has to be stringified explicitly)
-		return next({
-			"status": "500",
-			"title": "Internal server error",
-			"detail": JSON.stringify(error, ["name", "message", "stack"])
-		});
+		return next(error);
 	});
 });
 
@@ -104,11 +82,7 @@ routes.get("/:id", function(req, res, next) {
 
 		res.json(payload);
 	}, (error) => {
-		return next({
-			"status": "500",
-			"title": "Internal server error",
-			"detail": JSON.stringify(error, ["name", "message", "stack"])
-		});
+		return next(error);
 	});
 });
 

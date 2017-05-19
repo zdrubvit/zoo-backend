@@ -30,9 +30,19 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {
-		var error = new JSONAPIError(err);
-		
+		// Convert the standard JS Error so that it can be serialized
+		if (err instanceof Error) {
+			err = {
+				"status": "500",
+				"title": "Internal server error",
+				"detail": JSON.stringify(err, ["name", "message", "stack"])
+			}
+		}
+
 		logger.log("error", "Error " + err.status + " occurred with the following message: " + err.detail);
+		
+		// Serialize the error and send it away
+		var error = new JSONAPIError(err);
 
 		res.status(err.status).json(error);
 	});

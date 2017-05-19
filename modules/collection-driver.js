@@ -1,7 +1,7 @@
 const colors = require("colors");
 
 /*
-* Basic constructor.
+* The driver takes care of database operations and wraps around MongoDB native methods
 */
 CollectionDriver = function(db, logger) {
 	this.db = db;
@@ -35,7 +35,7 @@ CollectionDriver.prototype.getCollection = function(collectionName, createNonExi
 */
 CollectionDriver.prototype.findDocument = function(collectionName, query = {}) {
 	return new Promise((resolve, reject) => {
-		this.getCollection(collectionName).then((collection) => {
+		this.getCollection(collectionName, false).then((collection) => {
 			// findOne method was deemed deprecated for a while but since then re-introduced due to the popular revolt
 			return collection.findOne(query);
 		}).then((document) => {
@@ -51,7 +51,7 @@ CollectionDriver.prototype.findDocument = function(collectionName, query = {}) {
 */
 CollectionDriver.prototype.findAllDocuments = function(collectionName, query = {}, limit = 0, offset = 0) {
 	return new Promise((resolve, reject) => {
-		this.getCollection(collectionName).then((collection) => {
+		this.getCollection(collectionName, false).then((collection) => {
 			// find method returns a cursor to iterate over
 			return collection.find(query).limit(limit).skip(offset).toArray();
 		}).then((documents) => {
@@ -98,7 +98,7 @@ CollectionDriver.prototype.truncateCollection = function(collectionName) {
 */
 CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 	return new Promise((resolve, reject) => {
-		this.getCollection(collectionName).then((collection) => {
+		this.getCollection(collectionName, false).then((collection) => {
 			// Update multiple docs - without a selector or optional parameters
 			return collection.updateMany({}, { $rename: fields }, null);
 		}).then((result) => {

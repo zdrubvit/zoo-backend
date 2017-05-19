@@ -2,7 +2,7 @@ const cheerio = require("cheerio");
 const striptags = require("striptags");
 const S = require("string");
 
-// A transformer class, taking care of of modifying the imported documents
+// A transformer class, taking care of modifying the imported documents - every method belongs to one specific type
 Transformer = function() {}
 
 Transformer.prototype.transformLexiconDocument = function(document) {
