@@ -62,7 +62,7 @@ config.fieldMapping.lexicon = {
 	"classes": "class",
 	"image_src": "image",
 	"food_note": "food_detail",
-	"spread_note": "spread_detail",
+	"spread_note": "distribution",
 	"biotop": "biotope",
 	"biotopes_note": "biotopes_detail",
 	"projects_note": "projects",
@@ -86,7 +86,9 @@ config.fieldMapping.locations = {
 
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.api = {};
-config.api.lexicon = ["opendata_id", "name", "latin_name", "class.name", "order.name", "description", "image", "continents", "spread_detail", 
+config.api.lexicon = ["opendata_id", "name", "latin_name", "class.name", "order.name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
+config.api.locations = ["opendata_id", "description", "ordering", "url", "gps.x", "gps.y", "name", "slug"];
+config.api.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
 
 exports.config = config;

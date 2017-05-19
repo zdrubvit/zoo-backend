@@ -27,6 +27,8 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 
 	// Set the routes to their correct paths
 	app.use("/lexicon", require("./routes/lexicon"));
+	app.use("/locations", require("./routes/locations"));
+	app.use("/adoptions", require("./routes/adoptions"));
 
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {
