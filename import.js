@@ -19,9 +19,9 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// Start the import
 	Promise.all([
 		importer.importLexiconAndAdoptions(),
-		importer.importClassifications(),
-		importer.importEvents(),
-		importer.importLocations()
+		importer.importWrapper(config.mongodb.collectionNames.classifications),
+		importer.importWrapper(config.mongodb.collectionNames.events),
+		importer.importWrapper(config.mongodb.collectionNames.locations)
 	])
 	.then((results) => {
 		// All the resources have been imported

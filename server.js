@@ -29,6 +29,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	app.use("/lexicon", require("./routes/lexicon"));
 	app.use("/locations", require("./routes/locations"));
 	app.use("/adoptions", require("./routes/adoptions"));
+	app.use("/events", require("./routes/events"));
 
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {

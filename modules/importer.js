@@ -55,87 +55,38 @@ Importer.prototype.getOpenData = function(url, resource, fields) {
 	});
 };
 
-Importer.prototype.importClassifications = function() {
+// Handles all the necessary steps needed to import the whole resource collection
+Importer.prototype.importWrapper = function(resource) {
 	return new Promise((resolve, reject) => {
-		var url = this.endpoint + config.opendata.resources.classifications;
-		var collectionName = config.mongodb.collectionNames.classifications;
+		var url = this.endpoint + config.opendata.resources[resource];
+		var collectionName = config.mongodb.collectionNames[resource];
+		var filterColumns = config.filterColumns[resource];
+		var fieldMapping = config.fieldMapping[resource];
+		var transformMethod = config.transformMethod[resource];
 
-		// Make the received data available for the nested functions through a closure
-		this.getOpenData(url, collectionName, config.filterColumns.classifications).then((data) => {
+		// Make the received (downloaded) data available for the later nested functions through a closure
+		this.getOpenData(url, collectionName, filterColumns).then((data) => {
 			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 			
+			// First, clear the collection to make space for new data
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
 				this.logger.log("info", result);
 			
-				return this.transformDocuments(data.result.records, this.transformer.transformClassificationDocument);
+				// Run the specific transformations
+				return this.transformDocuments(data.result.records, this.transformer[transformMethod]);
 			})
 			.then((documents) => {
+				// Insert all the modified documents
 				return this.collectionDriver.insertDocuments(collectionName, documents);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
 
 				// Rename the necessary fields, all at once
-				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.classifications);
+				return this.collectionDriver.renameFields(collectionName, fieldMapping);
 			})
 			.then((result) => {
-				this.logger.log("info", result);
-				resolve("The " + collectionName.cyan + " finished successfully.");
-			})
-			.catch(reject);
-		}, reject);
-	});
-};
-
-Importer.prototype.importLexicon = function() {
-	return new Promise((resolve, reject) => {
-		var url = this.endpoint + config.opendata.resources.lexicon;
-		var collectionName = config.mongodb.collectionNames.lexicon;
-
-		this.getOpenData(url, collectionName, config.filterColumns.lexicon).then((data) => {
-			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
-				
-			this.collectionDriver.truncateCollection(collectionName).then((result) => {
-				this.logger.log("info", result);
-			
-				return this.transformDocuments(data.result.records, this.transformer.transformLexiconDocument);
-			})
-			.then((documents) => {
-				return this.collectionDriver.insertDocuments(collectionName, documents);
-			})
-			.then((result) => {
-				this.logger.log("info", result);
-
-				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.lexicon);
-			})
-			.then((result) => {
-				this.logger.log("info", result);
-				resolve("The " + collectionName.cyan + " finished successfully.");
-			})
-			.catch(reject);
-		}, reject);
-	});
-};
-
-Importer.prototype.importEvents = function() {
-	return new Promise((resolve, reject) => {
-		var url = this.endpoint + config.opendata.resources.events;
-		var collectionName = config.mongodb.collectionNames.events;
-
-		this.getOpenData(url, collectionName, config.filterColumns.events).then((data) => {
-			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
-			
-			this.collectionDriver.truncateCollection(collectionName).then((result) => {
-				this.logger.log("info", result);
-			
-				return this.collectionDriver.insertDocuments(collectionName, data.result.records);
-			})
-			.then((result) => {
-				this.logger.log("info", result);
-
-				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.events);
-			})
-			.then((result) => {
+				// All done - log the last result and resolve the promise
 				this.logger.log("info", result);
 				resolve("The " + collectionName.cyan + " finished successfully.");
 			})
@@ -174,41 +125,11 @@ Importer.prototype.importAdoptions = function() {
 	});
 };
 
-Importer.prototype.importLocations = function() {
-	return new Promise((resolve, reject) => {
-		var url = this.endpoint + config.opendata.resources.locations;
-		var collectionName = config.mongodb.collectionNames.locations;
-
-		this.getOpenData(url, collectionName, config.filterColumns.locations).then((data) => {
-			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
-			
-			this.collectionDriver.truncateCollection(collectionName).then((result) => {
-				this.logger.log("info", result);
-			
-				return this.transformDocuments(data.result.records, this.transformer.transformLocationDocument);
-			})
-			.then((documents) => {
-				return this.collectionDriver.insertDocuments(collectionName, documents);
-			})
-			.then((result) => {
-				this.logger.log("info", result);
-
-				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.locations);
-			})
-			.then((result) => {
-				this.logger.log("info", result);
-				resolve("The " + collectionName.cyan + " finished successfully.");
-			})
-			.catch(reject);
-		}, reject);
-	});
-};
-
 // This method wraps the two connected resources into a single promise so that it can be handled as such
 Importer.prototype.importLexiconAndAdoptions = function() {
 	return new Promise((resolve, reject) => {
 		// The animal lexicon is the first on the line
-		this.importLexicon().then((result) => {
+		this.importWrapper(config.mongodb.collectionNames.lexicon).then((result) => {
 			this.logger.log("info", result);
 
 			// Now we can start taking care of the animal adoptions that rely partially on the lexicon
@@ -227,6 +148,7 @@ Importer.prototype.importLexiconAndAdoptions = function() {
 // Modify the incoming records using the given transforming function
 Importer.prototype.transformDocuments = function(documents, transformFunction) {
 	return new Promise((resolve, reject) => {
+		// Initialize the counter so that it can keep track of asynchronously called functions
 		var documentsLength = documents.length;
 		var documentsDone = 0;
 

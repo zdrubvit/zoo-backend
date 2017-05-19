@@ -39,21 +39,39 @@ config.zoo.host = "https://zoopraha.cz/";
 
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
+config.filterColumns.adoptions = ["id", "nazev_cz", "cena", "k_prohlidce"];
 config.filterColumns.classifications = ["a", "b", "c", "d", "e"];
+config.filterColumns.events = ["start", "end", "summary", "description"];
 config.filterColumns.lexicon = ["id", "title", "latin_title", "classes", "order", "description", "image_src", "continents", "spread_note", 
 	"biotop", "biotopes_note", "food", "food_note", "proportions", "reproduction", "attractions", "projects_note", "breeding", "localities_title", "localities_url"];
-config.filterColumns.events = ["start", "end", "summary", "description"];
-config.filterColumns.adoptions = ["id", "nazev_cz", "cena", "k_prohlidce"];
 config.filterColumns.locations = ["id", "title", "alias", "ordering", "gps_x", "gps_y", "description", "url"];
+
+// The names of transformation methods that are applied to respective resources after they'd been imported
+config.transformMethod = {};
+config.transformMethod.adoptions = "transformClassificationDocument";
+config.transformMethod.classifications = "transformClassificationDocument";
+config.transformMethod.events = "transformEventDocument";
+config.transformMethod.lexicon = "transformLexiconDocument";
+config.transformMethod.locations = "transformLocationDocument";
+
 
 // Objects representing the renaming of mongodb fields in the form of {"oldField": "newField", "anotherOldField": "anotherNewField", ...}
 config.fieldMapping = {};
+config.fieldMapping.adoptions = {
+	"id": "opendata_id",
+	"nazev_cz": "name",
+	"cena": "price",
+	"k_prohlidce": "visit"
+};
 config.fieldMapping.classifications = {
 	"a": "opendata_id",
 	"b": "type",
 	"c":"parent_id",
 	"d": "name",
 	"e": "slug"
+};
+config.fieldMapping.events = {
+	"summary": "name"
 };
 config.fieldMapping.lexicon = {
 	"id": "opendata_id",
@@ -69,15 +87,6 @@ config.fieldMapping.lexicon = {
 	"localities_title": "location",
 	"localities_url": "location_url"
 };
-config.fieldMapping.events = {
-	"summary": "title"
-};
-config.fieldMapping.adoptions = {
-	"id": "opendata_id",
-	"nazev_cz": "name",
-	"cena": "price",
-	"k_prohlidce": "visit"
-};
 config.fieldMapping.locations = {
 	"id": "opendata_id",
 	"title": "name",
@@ -86,9 +95,10 @@ config.fieldMapping.locations = {
 
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.api = {};
+config.api.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
+config.api.events = ["start", "end", "duration", "description", "name"];
 config.api.lexicon = ["opendata_id", "name", "latin_name", "class.name", "order.name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 config.api.locations = ["opendata_id", "description", "ordering", "url", "gps.x", "gps.y", "name", "slug"];
-config.api.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
 
 exports.config = config;

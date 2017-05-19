@@ -1,9 +1,25 @@
 const cheerio = require("cheerio");
 const striptags = require("striptags");
 const S = require("string");
+const moment = require("moment");
 
 // A transformer class, taking care of modifying the imported documents - every method belongs to one specific type
-Transformer = function() {}
+Transformer = function() {};
+
+Transformer.prototype.transformClassificationDocument = function(document) {
+	// Split the czech and latin names in the classification
+	if (document.d) {
+		document.d = {
+			"name": S(document.d).between("", "(").trim().s,
+			"latin_name": S(document.d).between("(", ")").s
+		};
+	}
+};
+
+Transformer.prototype.transformEventDocument = function(document) {
+	// Calculate the event's duration in minutes
+	document.duration = moment(document.end).diff(moment(document.start), "minutes").toString();
+};
 
 Transformer.prototype.transformLexiconDocument = function(document) {
 	// If the image is absent, try to pull it out of the description in case there's still some HTML present
@@ -37,17 +53,7 @@ Transformer.prototype.transformLexiconDocument = function(document) {
 			"latin_name": S(document.order).between("(", ")").s
 		};
 	}
-}
-
-Transformer.prototype.transformClassificationDocument = function(document) {
-	// Split the czech and latin names in the classification
-	if (document.d) {
-		document.d = {
-			"name": S(document.d).between("", "(").trim().s,
-			"latin_name": S(document.d).between("(", ")").s
-		};
-	}
-}
+};
 
 Transformer.prototype.transformLocationDocument = function(document) {
 	// Split the GPS into coordinates
@@ -58,6 +64,6 @@ Transformer.prototype.transformLocationDocument = function(document) {
 
 	delete document.gps_x;
 	delete document.gps_y;
-}
+};
 
 exports.Transformer = Transformer;

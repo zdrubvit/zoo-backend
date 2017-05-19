@@ -3,6 +3,7 @@ const JSONAPISerializer = require("jsonapi-serializer").Serializer;
 
 // Helper middleware class used across multiple app routes
 Middleware = function(fieldNames) {
+	// The field names (reflecting the collection's "schema") are used extensively throughout the middleware methods
 	this.fieldNames = fieldNames;
 };
 

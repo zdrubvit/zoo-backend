@@ -28,6 +28,7 @@
     "express": "^4.15.2",
     "joi": "^10.4.2",
     "jsonapi-serializer": "^3.5.3",
+    "moment": "^2.18.1",
     "mongodb": "^2.2.24",
     "string": "^3.3.3",
     "striptags": "^3.0.1",
