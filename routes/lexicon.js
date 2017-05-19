@@ -15,17 +15,17 @@ routes.use(function(req, res, next) {
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Gain access to the shared methods
-	middleware = new Middleware();
+	middleware = new Middleware(fieldNames);
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
+	lexiconSerializer = middleware.getSerializer(collectionName);
 
 	return next();
 });
 
 // Validate the incoming query parameters
 routes.use(function(req, res, next) {
-	var validation = middleware.validateQuery(req.query, fieldNames)
+	var validation = middleware.validateRequestQuery(req.query)
 
 	// Send the "422 - Unprocessable Entity" error code (the standard JS Error object has to be traversed to get the message)
 	if (validation.error) {
@@ -40,28 +40,9 @@ routes.use(function(req, res, next) {
 });
 
 routes.get("/", function(req, res, next) {
-	var query = {};
-	var limit = 0;
-	var offset = 0;
+	var dbQuery = middleware.createDbQuery(req.query);
 
-	// Loop through the query parameters
-	for (property in req.query) {
-		// ...check if they're proper field names and if they are, add them to the query
-		if (fieldNames.indexOf(property) != -1) {
-			query[property] = new RegExp(req.query[property], 'i');
-		}
-
-		// ...now look for the limiting options
-		if (property == "limit") {
-			limit = parseInt(req.query[property]);
-		}
-
-		if (property == "offset") {
-			offset = parseInt(req.query[property]);
-		}
-	}
-
-	collectionDriver.findAllDocuments(collectionName, query, limit, offset).then((documents) => {
+	collectionDriver.findAllDocuments(collectionName, dbQuery.query, dbQuery.limit, dbQuery.offset).then((documents) => {
 		// The argument is either an array of documents or an empty array
 		var payload = lexiconSerializer.serialize(documents);
 
