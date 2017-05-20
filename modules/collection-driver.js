@@ -49,11 +49,11 @@ CollectionDriver.prototype.findDocument = function(collectionName, query = {}) {
 /*
 * Searches the collection for documents with certain filters
 */
-CollectionDriver.prototype.findAllDocuments = function(collectionName, query = {}, limit = 0, offset = 0) {
+CollectionDriver.prototype.findAllDocuments = function(collectionName, query = {}, limit = 0, offset = 0, sort = {}) {
 	return new Promise((resolve, reject) => {
 		this.getCollection(collectionName, false).then((collection) => {
-			// find method returns a cursor to iterate over
-			return collection.find(query).limit(limit).skip(offset).toArray();
+			// find method returns a cursor to iterate over the collection with
+			return collection.find(query).limit(limit).skip(offset).sort(sort).toArray();
 		}).then((documents) => {
 			resolve(documents);
 		}).catch((error) => {

@@ -1,5 +1,6 @@
 const routes = require("express").Router();
 const ObjectID = require("mongodb").ObjectID;
+
 const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
@@ -24,7 +25,7 @@ routes.use(function(req, res, next) {
 });
 
 routes.get("/", function(req, res, next) {
-	collectionDriver.findAllDocuments(collectionName).then((documents) => {
+	collectionDriver.findAllDocuments(collectionName, {}, 0, 0, {name: 1}).then((documents) => {
 		// The argument is either an array of documents or an empty array
 		var payload = lexiconSerializer.serialize(documents);
 

@@ -6,10 +6,10 @@ config.mongodb.host = "localhost";
 config.mongodb.port = "27017";
 config.mongodb.database = "zoo";
 config.mongodb.collectionNames = {
-	"classifications": "classifications",
-	"lexicon": "lexicon",
-	"events": "events",
 	"adoptions": "adoptions",
+	"classifications": "classifications",
+	"events": "events",
+	"lexicon": "lexicon",
 	"locations": "locations"
 }
 
@@ -66,8 +66,8 @@ config.fieldMapping.adoptions = {
 config.fieldMapping.classifications = {
 	"a": "opendata_id",
 	"b": "type",
-	"c":"parent_id",
-	"d": "name",
+	"c": "parent_id",
+	"d": "title",
 	"e": "slug"
 };
 config.fieldMapping.events = {
@@ -96,10 +96,11 @@ config.fieldMapping.locations = {
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.api = {};
 config.api.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
+config.api.classifications = ["opendata_id", "type", "title", "slug", "orders"];
 config.api.events = ["start", "end", "duration", "description", "name"];
-config.api.lexicon = ["opendata_id", "name", "latin_name", "class.name", "order.name", "description", "image", "continents", "distribution", 
+config.api.lexicon = ["opendata_id", "name", "latin_name", "class", "order", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
-config.api.locations = ["opendata_id", "description", "ordering", "url", "gps.x", "gps.y", "name", "slug"];
+config.api.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
 
 // The allowed query parameters of certain API methods
 config.apiQuery = {};

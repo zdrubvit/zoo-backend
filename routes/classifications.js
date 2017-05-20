@@ -5,8 +5,8 @@ const Joi = require("joi");
 const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
-const collectionName = config.mongodb.collectionNames.events;
-const fieldNames = config.api.events;
+const collectionName = config.mongodb.collectionNames.classifications;
+const fieldNames = config.api.classifications;
 var collectionDriver;
 var lexiconSerializer;
 var middleware;
@@ -22,12 +22,10 @@ routes.use(function(req, res, next) {
 routes.use(function(req, res, next) {
 	var schemaKeys = {};
 
-	// Insist the date to be in a ISO8601 format
-	schemaKeys.datetime = Joi.date().iso();
-
-	// Append the pagination options
-	schemaKeys.limit = Joi.number().integer().min(1);
-	schemaKeys.offset = Joi.number().integer();
+	// The parameters have to be boolean values
+	schemaKeys.class = Joi.boolean();
+	schemaKeys.order = Joi.boolean();
+	schemaKeys.family = Joi.boolean();
 
 	var validation = middleware.validateRequestQuery(schemaKeys, req.query);
 
@@ -54,26 +52,32 @@ routes.use(function(req, res, next) {
 	return next();
 });
 
+// Get the whole taxonomy structure (excluding the animal "family" so far)
 routes.get("/", function(req, res, next) {
-	var query = {};
+	collectionDriver.findAllDocuments(collectionName, {type: "class"}).then((classDocuments) => {
+		classDocumentsLength = classDocuments.length;
+		classDocumentsCount = 0;
 
-	// The date has to be either lower or equal to event's start or fall between the event's start and end dates
-	if (req.query.datetime) {
-		query.$or = [
-			{ start : { $gte : req.query.datetime } },
-			{ $and : [
-				{ start : { $lt : req.query.datetime } },
-				{ end : { $gte : req.query.datetime } }
-			]}
-		];
-	}
+		classDocuments.forEach((classDocument) => {
+			collectionDriver.findAllDocuments(collectionName, {type: "order", parent_id: classDocument.opendata_id}).then((orderDocuments) => {
+				// Append the child documents to their parent
+				classDocument.orders = orderDocuments;
 
-	collectionDriver.findAllDocuments(collectionName, query, 0, 0, {start: 1}).then((documents) => {
-		// The argument is either an array of documents or an empty array
-		var payload = lexiconSerializer.serialize(documents);
+				classDocumentsCount++;
 
-		res.json(payload);
-	}, (error) => {
+				if (classDocumentsCount == classDocumentsLength) {
+					// All the documents are finally linked together - send them back
+					var payload = lexiconSerializer.serialize(classDocuments);
+
+					res.json(payload);
+				}
+			}, (error) => {
+				// Propagate the error up to the catcher
+				throw error;
+			});
+		});
+	})
+	.catch((error) => {
 		// In case of an error, forward the details to the main error handler (the JS Error object has to be stringified explicitly)
 		return next(error);
 	});

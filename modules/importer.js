@@ -1,5 +1,6 @@
 const http = require("http");
 const colors = require("colors");
+
 const config = require("../config").config;
 
 // This class handles the open data, transforming and linking them, putting them in the database

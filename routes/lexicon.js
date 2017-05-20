@@ -60,7 +60,7 @@ routes.use(function(req, res, next) {
 routes.get("/", function(req, res, next) {
 	var dbQuery = middleware.createDbQuery(req.query);
 
-	collectionDriver.findAllDocuments(collectionName, dbQuery.query, dbQuery.limit, dbQuery.offset).then((documents) => {
+	collectionDriver.findAllDocuments(collectionName, dbQuery.query, dbQuery.limit, dbQuery.offset, {name: 1}).then((documents) => {
 		// The argument is either an array of documents or an empty array
 		var payload = lexiconSerializer.serialize(documents);
 

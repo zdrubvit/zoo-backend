@@ -2,6 +2,7 @@ const app = require("express")();
 const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
 const JSONAPIError = require("jsonapi-serializer").Error;
+
 const CollectionDriver = require("./modules/collection-driver").CollectionDriver;
 const Logger = require("./modules/logger").Logger;
 const config = require("./config").config;
@@ -26,10 +27,11 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	});
 
 	// Set the routes to their correct paths
+	app.use("/adoptions", require("./routes/adoptions"));
+	app.use("/classifications", require("./routes/classifications"));
+	app.use("/events", require("./routes/events"));
 	app.use("/lexicon", require("./routes/lexicon"));
 	app.use("/locations", require("./routes/locations"));
-	app.use("/adoptions", require("./routes/adoptions"));
-	app.use("/events", require("./routes/events"));
 
 	// Universal error handler middleware
 	app.use(function(err, req, res, next) {
