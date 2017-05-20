@@ -1,31 +1,38 @@
 const routes = require("express").Router();
 const ObjectID = require("mongodb").ObjectID;
+const Joi = require("joi");
+
 const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
 const collectionName = config.mongodb.collectionNames.lexicon;
 const fieldNames = config.api.lexicon;
+const allowedQueryParams = config.apiQuery.lexicon;
 var collectionDriver;
 var lexiconSerializer;
 var middleware;
 
-// Init the necessary variables
+// Bring out the middleware and gain access to the shared methods
 routes.use(function(req, res, next) {
-	// Retrieve the driver instances for later use
-	collectionDriver = req.app.get("collectionDriver");
-
-	// Gain access to the shared methods
 	middleware = new Middleware(fieldNames);
-
-	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName);
 
 	return next();
 });
 
 // Validate the incoming query parameters
 routes.use(function(req, res, next) {
-	var validation = middleware.validateRequestQuery(req.query)
+	var schemaKeys = {};
+
+	// Every parameter has to be a string with certain length restrictions
+	for (let i = 0; i < allowedQueryParams.length; i++) {
+		schemaKeys[allowedQueryParams[i]] = Joi.string().min(1).max(100);
+	}
+
+	// Append the pagination options
+	schemaKeys.limit = Joi.number().integer().min(1);
+	schemaKeys.offset = Joi.number().integer();
+
+	var validation = middleware.validateRequestQuery(schemaKeys, req.query);
 
 	// Send the "422 - Unprocessable Entity" error code (the standard JS Error object has to be traversed to get the message)
 	if (validation.error) {
@@ -35,6 +42,17 @@ routes.use(function(req, res, next) {
 			"detail": validation.error.details[0].message
 		});
 	}
+
+	return next();
+});
+
+// Init the necessary variables
+routes.use(function(req, res, next) {
+	// Retrieve the driver instances for later use
+	collectionDriver = req.app.get("collectionDriver");
+
+	// Create a serializer instance with perfected config options
+	lexiconSerializer = middleware.getSerializer(collectionName);
 
 	return next();
 });
