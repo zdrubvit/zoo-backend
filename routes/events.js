@@ -57,7 +57,7 @@ routes.use(function(req, res, next) {
 routes.get("/", function(req, res, next) {
 	var query = {};
 
-	// The date has to be either lower or equal to event's start or fall between the event's start and end dates
+	// The date has to be either lower or equal to the event's start or fall between the event's start and end dates
 	if (req.query.datetime) {
 		query.$or = [
 			{ start : { $gte : req.query.datetime } },

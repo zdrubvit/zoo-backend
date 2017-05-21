@@ -1,4 +1,5 @@
 const app = require("express")();
+const bodyParser = require("body-parser");
 const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
 const JSONAPIError = require("jsonapi-serializer").Error;
@@ -22,6 +23,39 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	app.use(function(req, res, next) {
 		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
 		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip);
+
+		return next();
+	});
+
+	// Parse the request body as a JSON
+	app.use(bodyParser.json());
+
+	// Check the request headers
+	app.use(function(req, res, next) {
+		// Catch the case where the client does not accept JSON-API
+		if ( ! req.accepts("application/vnd.api+json")) {
+			return next({
+				"status": "406",
+				"title": "Not Acceptable",
+				"detail": "The client has to accept the JSON-API formatted response"
+			});
+		}
+
+		// Catch the case where the client has not send a valid content type
+		if (req.body.length && ! req.is("application/vnd.api+json")) {
+			return next({
+				"status": "415",
+				"title": "Unsupported Media Type",
+				"detail": "The received content has to be JSON-API formatted and have the proper http header"
+			});
+		}
+
+		return next();
+	});
+
+	// Set the response headers
+	app.use(function(req, res, next) {
+		res.set("Content-type", "application/vnd.api+json");
 
 		return next();
 	});

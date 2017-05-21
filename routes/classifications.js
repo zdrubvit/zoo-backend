@@ -59,6 +59,7 @@ routes.get("/", function(req, res, next) {
 		classDocumentsCount = 0;
 
 		classDocuments.forEach((classDocument) => {
+			// Simulate the SQL nested query using another collection request
 			collectionDriver.findAllDocuments(collectionName, {type: "order", parent_id: classDocument.opendata_id}).then((orderDocuments) => {
 				// Append the child documents to their parent
 				classDocument.orders = orderDocuments;

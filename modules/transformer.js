@@ -3,6 +3,8 @@ const striptags = require("striptags");
 const S = require("string");
 const moment = require("moment");
 
+const config = require("../config").config;
+
 // A transformer class, taking care of modifying the imported documents - every method belongs to one specific type
 Transformer = function() {};
 
