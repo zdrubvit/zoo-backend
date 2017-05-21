@@ -14,7 +14,7 @@ var middleware;
 
 // Bring out the middleware and gain access to the shared methods
 routes.use(function(req, res, next) {
-	middleware = new Middleware(fieldNames);
+	middleware = new Middleware();
 
 	return next();
 });
@@ -52,13 +52,15 @@ routes.use(function(req, res, next) {
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName);
+	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
 
 	return next();
 });
 
 routes.get("/", function(req, res, next) {
+	console.log(req.query);
 	var dbQuery = middleware.createDbQuery(req.query);
+	console.log(dbQuery);
 
 	collectionDriver.findAllDocuments(collectionName, dbQuery.query, dbQuery.limit, dbQuery.offset, {name: 1}).then((documents) => {
 		// The argument is either an array of documents or an empty array

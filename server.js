@@ -55,7 +55,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 
 	// Set the response headers
 	app.use(function(req, res, next) {
-		res.set("Content-type", "application/vnd.api+json");
+		res.set("Content-type", "application/vnd.api+json;charset=utf-8");
 
 		return next();
 	});

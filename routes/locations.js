@@ -16,10 +16,10 @@ routes.use(function(req, res, next) {
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Gain access to the shared methods
-	middleware = new Middleware(fieldNames);
+	middleware = new Middleware();
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName);
+	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
 
 	return next();
 });
