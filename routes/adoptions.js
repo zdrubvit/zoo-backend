@@ -6,8 +6,8 @@ const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
 const collectionName = config.mongodb.collectionNames.adoptions;
-const fieldNames = config.api.adoptions;
-const allowedQueryParams = config.apiQuery.adoptions;
+const fieldNames = config.serialization.adoptions;
+const allowedQueryParams = config.allowedApiQuery.adoptions;
 var collectionDriver;
 var lexiconSerializer;
 var middleware;

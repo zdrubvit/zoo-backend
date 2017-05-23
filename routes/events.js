@@ -6,7 +6,7 @@ const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
 const collectionName = config.mongodb.collectionNames.events;
-const fieldNames = config.api.events;
+const fieldNames = config.serialization.events;
 var collectionDriver;
 var lexiconSerializer;
 var middleware;

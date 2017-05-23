@@ -94,17 +94,17 @@ config.fieldMapping.locations = {
 };
 
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
-config.api = {};
-config.api.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
-config.api.classifications = ["opendata_id", "type", "title", "slug", "orders"];
-config.api.events = ["start", "end", "duration", "description", "name"];
-config.api.lexicon = ["opendata_id", "name", "latin_name", "class", "order", "description", "image", "continents", "distribution", 
+config.serialization = {};
+config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
+config.serialization.classifications = ["opendata_id", "type", "title", "slug", "orders"];
+config.serialization.events = ["start", "end", "duration", "description", "name"];
+config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class", "order", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
-config.api.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
+config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
 
 // The allowed query parameters of certain API methods
-config.apiQuery = {};
-config.apiQuery.adoptions = ["name"];
-config.apiQuery.lexicon = ["name", "class.name", "order.name", "description", "continents", "distribution", "biotope", "food", "location"];
+config.allowedApiQuery = {};
+config.allowedApiQuery.adoptions = ["name"];
+config.allowedApiQuery.lexicon = ["name", "class.name", "order.name", "description", "continents", "distribution", "biotope", "food", "location"];
 
 exports.config = config;
