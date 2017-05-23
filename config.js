@@ -93,6 +93,27 @@ config.fieldMapping.locations = {
 	"alias": "slug"
 };
 
+// The DB indexes, defined later using the official index specification
+config.fieldIndexes = {};
+config.fieldIndexes.adoptions = [{ "name": "text" }];
+config.fieldIndexes.classifications = [{ "type": 1 }];
+config.fieldIndexes.events = [
+	{ "start": 1 },
+	{ "end": 1 }
+];
+config.fieldIndexes.lexicon = [
+	{ "name": "text" },
+	{ "class.name": 1 },
+	{ "order.name": 1 },
+	{ "description": 1 },
+	{ "continents": 1 },
+	{ "distribution": 1 },
+	{ "biotope": 1 },
+	{ "food": 1 },
+	{ "location":  1 }
+];
+config.fieldIndexes.locations = [];
+
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.serialization = {};
 config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];

@@ -34,13 +34,19 @@ Middleware.prototype.createDbQuery = function(requestQuery) {
 	var offset = 0;
 
 	for (property in requestQuery) {
-		// Look for the limiting options first, after that assign the query parameter as a "like" expression
+		// Look for the limiting options first, then the name (which is the only field with a text index), after that assign the query parameter as a case insensitive "like" expression
 		if (property == "limit") {
 			limit = parseInt(requestQuery[property]);
 		} else if (property == "offset") {
 			offset = parseInt(requestQuery[property]);
+		} else if (property == "name") {
+			query.$text = {
+			  $search: requestQuery[property],
+			  $caseSensitive: false,
+			  $diacriticSensitive: false
+			};
 		} else {
-			query[property] = new RegExp(requestQuery[property], 'i');
+			query[property] = { $regex: new RegExp(requestQuery[property], 'i') };
 		}
 	}
 

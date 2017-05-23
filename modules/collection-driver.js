@@ -110,6 +110,46 @@ CollectionDriver.prototype.renameFields = function(collectionName, fields) {
 };
 
 /*
+* Creates indexes on the specified fields.
+* The second argument is expected to be an array of objects in the form of {'field': 'indexType'}
+*/
+CollectionDriver.prototype.createIndexes = function(collectionName, fieldIndexes) {
+	return new Promise((resolve, reject) => {
+		// Catch the case where there are no indexes supplied
+		if (fieldIndexes.length == 0) {
+			resolve("No indexes were supplied.");
+		}
+		
+		// Remember the generated index names for logging
+		var indexNames = [];
+
+		this.getCollection(collectionName, false).then((collection) => {
+			var fieldIndexesSpec = [];
+
+			for(let i = 0; i < fieldIndexes.length; i++) {
+				// Generate the index name from the key and its value
+				var fieldName = Object.keys(fieldIndexes[i])[0];
+				var indexName = fieldName + "_" + fieldIndexes[i][fieldName];
+
+				fieldIndexesSpec.push({
+					"key": fieldIndexes[i],
+					"name": indexName
+				});
+
+				indexNames.push(indexName);
+			}
+
+			// Create multiple indexes at once
+			return collection.createIndexes(fieldIndexesSpec);
+		}).then((result) => {
+	    	resolve("The following indexes in the " + collectionName.cyan + " collection were created: " + JSON.stringify(indexNames) + ".");
+	    }).catch((error) => {
+	    	reject(error);
+	    });
+	});
+};
+
+/*
 * Force-closes the underlying db connection
 */
 CollectionDriver.prototype.closeDB = function() {

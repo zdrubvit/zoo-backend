@@ -87,6 +87,11 @@ Importer.prototype.importWrapper = function(resource) {
 				return this.collectionDriver.renameFields(collectionName, fieldMapping);
 			})
 			.then((result) => {
+				this.logger.log("info", result);
+
+				return this.collectionDriver.createIndexes(collectionName, config.fieldIndexes[resource]);
+			})
+			.then((result) => {
 				// All done - log the last result and resolve the promise
 				this.logger.log("info", result);
 				resolve("The " + collectionName.cyan + " finished successfully.");
@@ -116,6 +121,11 @@ Importer.prototype.importAdoptions = function() {
 				this.logger.log("info", result);
 
 				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.adoptions);
+			})
+			.then((result) => {
+				this.logger.log("info", result);
+
+				return this.collectionDriver.createIndexes(collectionName, config.fieldIndexes.adoptions);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
