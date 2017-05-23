@@ -104,6 +104,7 @@ config.api.locations = ["opendata_id", "description", "ordering", "url", "gps", 
 
 // The allowed query parameters of certain API methods
 config.apiQuery = {};
+config.apiQuery.adoptions = ["name"];
 config.apiQuery.lexicon = ["name", "class.name", "order.name", "description", "continents", "distribution", "biotope", "food", "location"];
 
 exports.config = config;
