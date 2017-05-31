@@ -19,6 +19,7 @@ Middleware.prototype.getSerializer = function(collectionName, attributes) {
 		"attributes": attributes,
 		"pluralizeType": false,
 		"keyForAttribute": "snake_case",
+		"nullIfMissing": true,
 		"meta": {
 			"count": function(documents) {
 				return documents.length;

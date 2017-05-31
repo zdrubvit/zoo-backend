@@ -4,8 +4,8 @@ const ObjectID = require("mongodb").ObjectID;
 const config = require("../config").config;
 const Middleware = require("./middleware").Middleware;
 
-const collectionName = config.mongodb.collectionNames.locations;
-const fieldNames = config.serialization.locations;
+const collectionName = config.mongodb.collectionNames.lexicon;
+const fieldNames = config.serialization.biotopes;
 var collectionDriver;
 var lexiconSerializer;
 var middleware;
@@ -19,14 +19,21 @@ routes.use(function(req, res, next) {
 	middleware = new Middleware();
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
+	lexiconSerializer = middleware.getSerializer("biotopes", fieldNames);
 
 	return next();
 });
 
 routes.get("/", function(req, res, next) {
-	collectionDriver.findAllDocuments(collectionName, {}, 0, 0, {name: 1}).then((documents) => {
-		// The argument is either an array of documents or an empty array
+	// Filter the documents so that the field value is valid and believable
+	var query = { $where: "this.biotope.length > 0 && this.biotope.length < 40" };
+
+	collectionDriver.findDistinctValues(collectionName, "biotope", query).then((values) => {
+		// The serialization argument must either be an array of documents or an empty array, but the values are simple array elements
+		var documents = values.map(function(value, index) {
+			return {"_id": index, "name": value};
+		});
+
 		var payload = lexiconSerializer.serialize(documents);
 
 		res.json(payload);

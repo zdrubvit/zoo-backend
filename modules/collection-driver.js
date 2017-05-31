@@ -63,6 +63,21 @@ CollectionDriver.prototype.findAllDocuments = function(collectionName, query = {
 };
 
 /*
+* Queries the collection for distinct values of a given field
+*/
+CollectionDriver.prototype.findDistinctValues = function(collectionName, key, query = {}) {
+	return new Promise((resolve, reject) => {
+		this.getCollection(collectionName, false).then((collection) => {
+			return collection.distinct(key, query);
+		}).then((values) => {
+			resolve(values);
+		}).catch((error) => {
+			reject(error);
+		});
+	});
+};
+
+/*
 * Inserts documents, supplied via the second argument, in the specified collection.
 */
 CollectionDriver.prototype.insertDocuments = function(collectionName, documents) {

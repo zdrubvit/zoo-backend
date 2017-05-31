@@ -62,6 +62,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 
 	// Set the routes to their correct paths
 	app.use("/adoptions", require("./routes/adoptions"));
+	app.use("/biotopes", require("./routes/biotopes"));
 	app.use("/classifications", require("./routes/classifications"));
 	app.use("/events", require("./routes/events"));
 	app.use("/lexicon", require("./routes/lexicon"));
