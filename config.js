@@ -118,7 +118,7 @@ config.fieldIndexes.locations = [];
 config.serialization = {};
 config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
 config.serialization.biotopes = ["name"];
-config.serialization.classifications = ["opendata_id", "type", "title", "slug", "orders"];
+config.serialization.classifications = ["opendata_id", "type", "parent_id", "title", "slug", "orders"];
 config.serialization.events = ["start", "end", "duration", "description", "name"];
 config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class", "order", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
