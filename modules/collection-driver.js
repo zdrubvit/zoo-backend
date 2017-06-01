@@ -78,6 +78,32 @@ CollectionDriver.prototype.findDistinctValues = function(collectionName, key, qu
 };
 
 /*
+* Searches the collection for a number of random documents with an optional query filter
+*/
+CollectionDriver.prototype.getRandomDocuments = function(collectionName, sampleSize, query = {}) {
+	return new Promise((resolve, reject) => {
+		this.getCollection(collectionName, false).then((collection) => {
+			// Create an aggregation pipeline on the collection and point a cursor to the result
+			// The limit has to be present in order for the sampling to estimate the collection size
+			var cursor = collection.aggregate([
+				{ $match: query},
+				{ $limit: 10000 },
+				{ $sample: {
+					size: sampleSize
+				}}
+			], { cursor: { batchSize: 1 } });
+
+			// This cursor's method returns a Promise
+			return cursor.toArray();
+		}).then((documents) => {
+			resolve(documents);
+		}).catch((error) => {
+			reject(error);
+		});
+	});
+};
+
+/*
 * Inserts documents, supplied via the second argument, in the specified collection.
 */
 CollectionDriver.prototype.insertDocuments = function(collectionName, documents) {
