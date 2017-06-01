@@ -7,7 +7,7 @@ Middleware = function(fieldNames) {};
 // Joi validation of query parameters using the given schema
 Middleware.prototype.validateRequestQuery = function(schemaKeys, requestQuery) {
 	const schema = Joi.object().keys(schemaKeys);
-	const validation = Joi.validate(requestQuery, schema, {allowUnknown: true});
+	const validation = Joi.validate(requestQuery, schema);
 
 	return validation;
 };

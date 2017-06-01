@@ -48,7 +48,6 @@ config.filterColumns.locations = ["id", "title", "alias", "ordering", "gps_x", "
 
 // The names of transformation methods that are applied to respective resources after they'd been imported
 config.transformMethod = {};
-config.transformMethod.adoptions = "transformClassificationDocument";
 config.transformMethod.classifications = "transformClassificationDocument";
 config.transformMethod.events = "transformEventDocument";
 config.transformMethod.lexicon = "transformLexiconDocument";
@@ -67,7 +66,6 @@ config.fieldMapping.classifications = {
 	"a": "opendata_id",
 	"b": "type",
 	"c": "parent_id",
-	"d": "title",
 	"e": "slug"
 };
 config.fieldMapping.events = {
@@ -77,7 +75,6 @@ config.fieldMapping.lexicon = {
 	"id": "opendata_id",
 	"title": "name",
 	"latin_title": "latin_name",
-	"classes": "class",
 	"image_src": "image",
 	"food_note": "food_detail",
 	"spread_note": "distribution",
@@ -103,8 +100,8 @@ config.fieldIndexes.events = [
 ];
 config.fieldIndexes.lexicon = [
 	{ "name": "text" },
-	{ "class.name": 1 },
-	{ "order.name": 1 },
+	{ "class_name": 1 },
+	{ "order_name": 1 },
 	{ "description": 1 },
 	{ "continents": 1 },
 	{ "distribution": 1 },
@@ -118,15 +115,15 @@ config.fieldIndexes.locations = [];
 config.serialization = {};
 config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
 config.serialization.biotopes = ["name"];
-config.serialization.classifications = ["opendata_id", "type", "parent_id", "title", "slug", "orders"];
+config.serialization.classifications = ["opendata_id", "type", "parent_id", "name", "latin_name", "slug", "orders"];
 config.serialization.events = ["start", "end", "duration", "description", "name"];
-config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class", "order", "description", "image", "continents", "distribution", 
+config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class_name", "class_latin_name", "order_name", "order_latin_name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
 
 // The allowed query parameters of certain API methods
 config.allowedApiQuery = {};
 config.allowedApiQuery.adoptions = ["name"];
-config.allowedApiQuery.lexicon = ["name", "class.name", "order.name", "description", "continents", "distribution", "biotope", "food", "location"];
+config.allowedApiQuery.lexicon = ["name", "class_name", "order_name", "description", "continents", "distribution", "biotope", "food", "location"];
 
 exports.config = config;

@@ -11,10 +11,10 @@ Transformer = function() {};
 Transformer.prototype.transformClassificationDocument = function(document) {
 	// Split the czech and latin names in the classification
 	if (document.d) {
-		document.d = {
-			"name": S(document.d).between("", "(").trim().s,
-			"latin_name": S(document.d).between("(", ")").s
-		};
+		document.name = S(document.d).between("", "(").trim().s;
+		document.latin_name = S(document.d).between("(", ")").s;
+
+		delete document.d;
 	}
 };
 
@@ -43,17 +43,17 @@ Transformer.prototype.transformLexiconDocument = function(document) {
 
 	// Split the czech and latin names in the classification
 	if (document.classes) {
-		document.classes = {
-			"name": S(document.classes).between("", "(").trim().s,
-			"latin_name": S(document.classes).between("(", ")").s
-		};
+		document.class_name = S(document.classes).between("", "(").trim().s;
+		document.class_latin_name = S(document.classes).between("(", ")").s;
+
+		delete document.classes;
 	}
 
 	if (document.order) {
-		document.order = {
-			"name": S(document.order).between("", "(").trim().s,
-			"latin_name": S(document.order).between("(", ")").s
-		};
+		document.order_name = S(document.order).between("", "(").trim().s;
+		document.order_latin_name = S(document.order).between("(", ")").s;
+
+		delete document.order;
 	}
 };
 
