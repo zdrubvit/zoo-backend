@@ -117,6 +117,7 @@ config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", 
 config.serialization.biotopes = ["name"];
 config.serialization.classifications = ["opendata_id", "type", "parent_id", "name", "latin_name", "slug", "orders"];
 config.serialization.events = ["start", "end", "duration", "description", "name"];
+config.serialization.food = ["name"];
 config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class_name", "class_latin_name", "order_name", "order_latin_name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
