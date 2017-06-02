@@ -13,4 +13,6 @@ The "import.js" script utilizes an Importer class from "./modules/importer.js" t
 
 The API server, living mainly in "server.js", provides the common tasks connected to every request/response lifecycle (parsing, error catching) and includes all of the other routes. The routes are located in "./routes" subfolder and there's one for every resource. Their specific functions, which can't be reused, are placed in each one of them, while the mutual parts have been placed inside the "./routes/middleware.js" file (things like request validation or JSON-API serialization / deseriaization).
 
+One of the crucial pieces living in this repository is the "./modules/question-generator.js" class. It's able to generate quiz questions based on the animal data hidden in the lexicon collection. The basic structure of the questions is, again, saved in the config file - the three core types are easily extendable, using just the universal wording of a question, plus a field name with which it is connected. This generator is than utilized from within the "generate-questions.js" script, which handles the concurrent creation of quiz documents in a batch operation.
+
 For the external modules and dependencies that appear in many of those scripts, please refer to the "package.json" file.
