@@ -26,7 +26,7 @@ routes.use(function(req, res, next) {
 
 routes.get("/", function(req, res, next) {
 	// Filter the documents so that the field value is valid and believable
-	var query = { $where: function() { return obj.continents.length > 0 && obj.continents.length < 1; } };
+	var query = { $where: "this.continents.length > 0 && this.continents.length < 20" };
 
 	collectionDriver.findDistinctValues(collectionName, "continents", query).then((values) => {
 		// The serialization argument must either be an array of documents or an empty array, but the values are simple array elements
