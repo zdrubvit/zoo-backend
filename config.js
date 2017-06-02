@@ -172,6 +172,7 @@ config.serialization.food = ["name"];
 config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class_name", "class_latin_name", "order_name", "order_latin_name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
+config.serialization.questions = ["text", "correct_answer", "incorrect_answers", "difficulty", "type", "answer_object_id", "picked_count", "answered_correctly_count"];
 
 // The allowed query parameters of certain API methods
 config.allowedApiQuery = {};

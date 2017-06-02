@@ -37,8 +37,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 			primaryDocument = documents[0];
 
 			secondaryQuery.$and = [
-				{ question: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]) },
-				{ answerObjectId: primaryDocument._id }
+				{ text: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]) },
+				{ answer_object_id: primaryDocument._id }
 			];
 
 			// Check if the question exists already (based on its wording and answer so far)
@@ -61,14 +61,14 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 
 			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
 			var newQuestion = [{
-				question: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]),
-				correctAnswer: primaryDocument.name,
-				incorrectAnswers: incorrectAnswers,
+				text: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]),
+				correct_answer: primaryDocument.name,
+				incorrect_answers: incorrectAnswers,
 				difficulty: 0,
 				type: "guess_animal_text",
-				answerObjectId: primaryDocument._id,
-				pickedCount: 0,
-				answeredCorrectlyCount: 0
+				answer_object_id: primaryDocument._id,
+				picked_count: 0,
+				answered_correctly_count: 0
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
@@ -109,8 +109,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 			primaryDocument = documents[0];
 
 			secondaryQuery.$and = [
-				{ question: questionVariation.text.replace(":value", primaryDocument.name) },
-				{ answerObjectId: primaryDocument._id }
+				{ text: questionVariation.text.replace(":value", primaryDocument.name) },
+				{ answer_object_id: primaryDocument._id }
 			];
 
 			// Check if the question exists already (based on its wording and answer so far)
@@ -133,14 +133,14 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 
 			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
 			var newQuestion = [{
-				question: questionVariation.text.replace(":value", primaryDocument.name),
-				correctAnswer: primaryDocument[questionVariation.fieldName],
-				incorrectAnswers: incorrectAnswers,
+				text: questionVariation.text.replace(":value", primaryDocument.name),
+				correct_answer: primaryDocument[questionVariation.fieldName],
+				incorrect_answers: incorrectAnswers,
 				difficulty: 0,
 				type: "guess_animal_text",
-				answerObjectId: primaryDocument._id,
-				pickedCount: 0,
-				answeredCorrectlyCount: 0
+				answer_object_id: primaryDocument._id,
+				picked_count: 0,
+				answered_correctly_count: 0
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
@@ -187,8 +187,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 			}
 
 			secondaryQuery.$and = [
-				{ question: questionType.text + primaryDocument[questionType.fieldName] },
-				{ answerObjectId: primaryDocument._id }
+				{ text: questionType.text + primaryDocument[questionType.fieldName] },
+				{ answer_object_id: primaryDocument._id }
 			];
 
 			// Check if the question exists already (based on its wording and answer so far)
@@ -199,14 +199,14 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 
 			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
 			var newQuestion = [{
-				question: questionType.text + primaryDocument[questionType.fieldName],
-				correctAnswer: primaryDocument.name,
-				incorrectAnswers: incorrectAnswers,
+				text: questionType.text + primaryDocument[questionType.fieldName],
+				correct_answer: primaryDocument.name,
+				incorrect_answers: incorrectAnswers,
 				difficulty: 0,
 				type: "guess_animal_text",
-				answerObjectId: primaryDocument._id,
-				pickedCount: 0,
-				answeredCorrectlyCount: 0
+				answer_object_id: primaryDocument._id,
+				picked_count: 0,
+				answered_correctly_count: 0
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
