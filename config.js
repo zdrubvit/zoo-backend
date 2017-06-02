@@ -10,7 +10,8 @@ config.mongodb.collectionNames = {
 	"classifications": "classifications",
 	"events": "events",
 	"lexicon": "lexicon",
-	"locations": "locations"
+	"locations": "locations",
+	"questions": "questions"
 }
 
 // Opendata specifications, endpoints and resource identificators
