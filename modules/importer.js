@@ -167,7 +167,7 @@ Importer.prototype.transformDocuments = function(documents, transformFunction) {
 			transformFunction(document);
 
 			// All the documents have been transformed -> resolve the promise
-			if(++documentsDone === documentsLength) resolve(documents);
+			if (++documentsDone === documentsLength) resolve(documents);
 		});
 	});
 };

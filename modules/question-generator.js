@@ -7,54 +7,69 @@ QuestionGenerator = function(logger, collectionDriver, sourceCollectionName, ans
 	this.answerCount = answerCount;
 
 	this.questions = [];
-	this.collectionName = config.mongodb.collectionNames.questions;
+	this.targetCollectionName = config.mongodb.collectionNames.questions;
 }
 
-QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName, questionBase) {
-	// Set the scope for this document such that it's visible from all the Promises
-	var primaryDocument = {};
-	var primaryQuery = {};
+QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName, questionText) {
+	return new Promise((resolve, reject) => {
+		// Set the scope for this document such that it's visible from all the Promises
+		var primaryDocument = {};
+		var primaryQuery = {};
 
-	primaryQuery[fieldName] = { $exists: true, $ne: "" };
+		primaryQuery[fieldName] = { $exists: true, $ne: "" };
 
-	// Choose a random document with a non-empty field
-	this.collectionDriver.getRandomDocuments(this.sourceCollectionName, 1, primaryQuery).then((documents) => {
-		var secondaryQuery = {};
+		// Choose a random document with a non-empty field
+		this.collectionDriver.getRandomDocuments(this.sourceCollectionName, 1, primaryQuery).then((documents) => {
+			var secondaryQuery = {};
 
-		// This is the core document, serving as a basis for the question as well as the correct answer
-		primaryDocument = documents[0];
-		console.log(primaryDocument);
+			// This is the core document, serving as a basis for the question as well as the correct answer
+			primaryDocument = documents[0];
 
-		// co kdyz nevrati vsechny tri? co duplicita?
-		// Now choose the remaining wrong answers via documents whose field values differ from the primary one
-		secondaryQuery[fieldName] = { $exists: true, $ne: primaryDocument[fieldName] };
-		return this.collectionDriver.getRandomDocuments(this.sourceCollectionName, this.answerCount - 1, secondaryQuery);
-	}).then((documents) => {
-		console.log(documents);
-		var incorrectAnswers = [];
+			secondaryQuery.$and = [
+				{ question: questionText.replace(":value", primaryDocument[fieldName]) },
+				{ answerObjectId: primaryDocument._id }
+			];
 
-		for (let i = 0; i < documents.length; i++) {
-			incorrectAnswers.push(documents[i].name);
-		}
+			// Check if the question exists already (based on its wording and answer so far)
+			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
+		}).then((document) => {
+			var tertiaryQuery = {};
 
-		// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
-		var newQuestion = [{
-			question: questionBase + "\"" + primaryDocument[fieldName] + "\"?",
-			correctAnswer: primaryDocument.name,
-			incorrectAnswers: incorrectAnswers,
-			difficulty: 0,
-			type: "guess_animal_text",
-			answerObjectId: primaryDocument._id,
-			pickedCount: 0,
-			answeredCorrectlyCount: 0
-		}];
+			// If the question's been already generated, stop the process at once
+			if (document) return Promise.reject("The generated question already exists.");
 
-		console.log(newQuestion);
-		return this.collectionDriver.insertDocuments(this.collectionName, newQuestion);
-	}).then((result) => {
-		this.logger.log("info", result);
-	}).catch((reason) => {
-		this.logger.log("error", "The question saving failed with the following reason: " + reason);
+			// Now choose the remaining wrong answers via documents whose field values differ from the primary one
+			tertiaryQuery[fieldName] = { $exists: true, $ne: primaryDocument[fieldName] };
+			return this.collectionDriver.getRandomDocuments(this.sourceCollectionName, this.answerCount - 1, tertiaryQuery);
+		}).then((documents) => {
+			var incorrectAnswers = [];
+
+			for (let i = 0; i < documents.length; i++) {
+				incorrectAnswers.push(documents[i].name);
+			}
+
+			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
+			var newQuestion = [{
+				question: questionText.replace(":value", primaryDocument[fieldName]),
+				correctAnswer: primaryDocument.name,
+				incorrectAnswers: incorrectAnswers,
+				difficulty: 0,
+				type: "guess_animal_text",
+				answerObjectId: primaryDocument._id,
+				pickedCount: 0,
+				answeredCorrectlyCount: 0
+			}];
+
+			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
+		}).then((result) => {
+			this.logger.log("info", result);
+
+			resolve(true);
+		}).catch((reason) => {
+			this.logger.log("error", "The question saving failed with the following reason: " + reason);
+
+			resolve(false);
+		});
 	});
 };
 
