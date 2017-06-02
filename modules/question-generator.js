@@ -1,5 +1,6 @@
 const config = require("../config").config;
 
+// Quiz questions are generated and inserted via this class
 QuestionGenerator = function(logger, collectionDriver, sourceCollectionName, answerCount = 4) {
 	this.logger = logger;
 	this.collectionDriver = collectionDriver;
@@ -8,15 +9,25 @@ QuestionGenerator = function(logger, collectionDriver, sourceCollectionName, ans
 
 	this.questions = [];
 	this.targetCollectionName = config.mongodb.collectionNames.questions;
+	this.questionTypes = config.questionTypes;
 }
 
-QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName, questionText) {
+/* 
+* Generate a question based on a concept of "which animal satisfies this condition / has this attribute"
+* Returns a Promise which is always resolved - either the question was created successfully or not
+* There's an intermediate check whether the question's similar variation already exists
+* The specific field that serves as a base for the question is chosen randomly from the config array
+*/
+QuestionGenerator.prototype.generateQuestionGuessAnimalText = function() {
 	return new Promise((resolve, reject) => {
+		// Randomly choose one variation of the question type
+		var questionVariation = this.questionTypes.guessAnimalText[Math.floor(Math.random() * this.questionTypes.guessAnimalText.length)];
+
 		// Set the scope for this document such that it's visible from all the Promises
 		var primaryDocument = {};
 		var primaryQuery = {};
 
-		primaryQuery[fieldName] = { $exists: true, $ne: "" };
+		primaryQuery[questionVariation.fieldName] = { $exists: true, $ne: "" };
 
 		// Choose a random document with a non-empty field
 		this.collectionDriver.getRandomDocuments(this.sourceCollectionName, 1, primaryQuery).then((documents) => {
@@ -26,7 +37,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName
 			primaryDocument = documents[0];
 
 			secondaryQuery.$and = [
-				{ question: questionText.replace(":value", primaryDocument[fieldName]) },
+				{ question: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]) },
 				{ answerObjectId: primaryDocument._id }
 			];
 
@@ -39,7 +50,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName
 			if (document) return Promise.reject("The generated question already exists.");
 
 			// Now choose the remaining wrong answers via documents whose field values differ from the primary one
-			tertiaryQuery[fieldName] = { $exists: true, $ne: primaryDocument[fieldName] };
+			tertiaryQuery[questionVariation.fieldName] = { $exists: true, $ne: primaryDocument[questionVariation.fieldName] };
 			return this.collectionDriver.getRandomDocuments(this.sourceCollectionName, this.answerCount - 1, tertiaryQuery);
 		}).then((documents) => {
 			var incorrectAnswers = [];
@@ -50,7 +61,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalText = function(fieldName
 
 			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
 			var newQuestion = [{
-				question: questionText.replace(":value", primaryDocument[fieldName]),
+				question: questionVariation.text.replace(":value", primaryDocument[questionVariation.fieldName]),
 				correctAnswer: primaryDocument.name,
 				incorrectAnswers: incorrectAnswers,
 				difficulty: 0,

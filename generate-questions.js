@@ -25,20 +25,23 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// For every iteration there should be one new question of a certain type, so the final number has to be multiplied
 	var questionsToGenerate = iterationCount * 1;
 
-	// The total nuber of generated questions in this run
+	// The total nuber of soon to be generated questions in this run
 	var questionsGenerated = 0;
 
-	for (let i = 0; i < iterationCount; i++) {
-		questionGenerator.generateQuestionGuessAnimalText("class_name", "Které z těchto zvířat patří do třídy \":value\"?").then((result) => {
-			// If all the questions have been generated, finish the script
-			if (result) {
-				if (++questionsGenerated === questionsToGenerate) {
-					collectionDriver.closeDB();
-				}
-			// In case of an error, try to generate another question right away by decrementing the counter
-			} else {
-				i--;
+	// A function to handle the resolved Promises
+	var questionGenerationCallback = function(result) {
+		// If all the questions have been generated, finish the script
+		if (result) {
+			if (++questionsGenerated === questionsToGenerate) {
+				collectionDriver.closeDB();
 			}
-		});
+		// In case of an error, try to generate another question right away
+		} else {
+			questionGenerator.generateQuestionGuessAnimalText().then(questionGenerationCallback);
+		}
+	}
+
+	for (let i = 0; i < iterationCount; i++) {
+		questionGenerator.generateQuestionGuessAnimalText().then(questionGenerationCallback);
 	}
 }, console.error);

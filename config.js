@@ -38,6 +38,31 @@ config.opendata.resources = {
 config.zoo = {};
 config.zoo.host = "https://zoopraha.cz/";
 
+// Different types of quiz questions, always consisting of a document's field (the question's base) and a text (with a bindable placeholder)
+config.questionTypes = {};
+config.questionTypes.guessAnimalText = [
+	{
+		"fieldName": "class_name",
+		"text": "Které z těchto zvířat patří do třídy \":value\"?"
+	},
+	{
+		"fieldName": "order_name",
+		"text": "Které z těchto zvířat patří do řádu \":value\"?"
+	},
+	{
+		"fieldName": "food_detail",
+		"text": "Víš, jaké zvíře se živí tímto druhem potravy: :value?"
+	},
+	{
+		"fieldName": "biotopes_detail",
+		"text": "Jedno z následujících zvířat se v přírodě vyskytuje v těchto oblastech: :value. Poznáš, které to je?"
+	},
+	{
+		"fieldName": "latin_name",
+		"text": "Latinský název \":value\" přísluší tomuto zvířeti:"
+	}
+];
+
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
 config.filterColumns.adoptions = ["id", "nazev_cz", "cena", "k_prohlidce"];
@@ -53,7 +78,6 @@ config.transformMethod.classifications = "transformClassificationDocument";
 config.transformMethod.events = "transformEventDocument";
 config.transformMethod.lexicon = "transformLexiconDocument";
 config.transformMethod.locations = "transformLocationDocument";
-
 
 // Objects representing the renaming of mongodb fields in the form of {"oldField": "newField", "anotherOldField": "anotherNewField", ...}
 config.fieldMapping = {};
