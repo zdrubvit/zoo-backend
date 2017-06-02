@@ -33,7 +33,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 		// If all the questions have been generated, finish the script
 		if (questionCreated) {
 			if (++questionsGenerated === questionsToGenerate) {
-				console.log("All " + questionsToGenerate + " questions have been generated, closing the DB connection.");
+				logger.log("info", "All " + questionsToGenerate + " questions have been generated, closing the DB connection.");
 				collectionDriver.closeDB();
 			}
 		// In case of an error, try to generate another question right away using the passed method name

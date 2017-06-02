@@ -64,6 +64,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	app.use("/adoptions", require("./routes/adoptions"));
 	app.use("/biotopes", require("./routes/biotopes"));
 	app.use("/classifications", require("./routes/classifications"));
+	app.use("/continents", require("./routes/continents"));
 	app.use("/events", require("./routes/events"));
 	app.use("/food", require("./routes/food"));
 	app.use("/lexicon", require("./routes/lexicon"));
