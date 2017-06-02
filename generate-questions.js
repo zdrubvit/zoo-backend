@@ -23,25 +23,37 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	}
 
 	// For every iteration there should be one new question of a certain type, so the final number has to be multiplied
-	var questionsToGenerate = iterationCount * 1;
+	var questionsToGenerate = iterationCount * 3;
 
 	// The total nuber of soon to be generated questions in this run
 	var questionsGenerated = 0;
 
 	// A function to handle the resolved Promises
-	var questionGenerationCallback = function(result) {
+	var questionGenerationCallback = function(questionCreated, method) {
 		// If all the questions have been generated, finish the script
-		if (result) {
+		if (questionCreated) {
 			if (++questionsGenerated === questionsToGenerate) {
+				console.log("All " + questionsToGenerate + " questions have been generated, closing the DB connection.");
 				collectionDriver.closeDB();
 			}
-		// In case of an error, try to generate another question right away
+		// In case of an error, try to generate another question right away using the passed method name
 		} else {
-			questionGenerator.generateQuestionGuessAnimalText().then(questionGenerationCallback);
+			questionGenerator[method]().then(function(result) {
+				return questionGenerationCallback(result, method);
+			});
 		}
 	}
 
+	// Iterate predefined number of times over the generating methods and use closure in the Promise handlers to pass in a method name in case of an error
 	for (let i = 0; i < iterationCount; i++) {
-		questionGenerator.generateQuestionGuessAnimalText().then(questionGenerationCallback);
+		questionGenerator.generateQuestionGuessAnimalName().then(function(result) {
+			return questionGenerationCallback(result, "generateQuestionGuessAnimalName");
+		});
+		questionGenerator.generateQuestionGuessAnimalAttribute().then(function(result) {
+			return questionGenerationCallback(result, "generateQuestionGuessAnimalAttribute");
+		});
+		questionGenerator.generateQuestionGuessAnimalImage().then(function(result) {
+			return questionGenerationCallback(result, "generateQuestionGuessAnimalImage");
+		});
 	}
 }, console.error);

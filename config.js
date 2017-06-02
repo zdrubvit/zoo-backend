@@ -40,7 +40,7 @@ config.zoo.host = "https://zoopraha.cz/";
 
 // Different types of quiz questions, always consisting of a document's field (the question's base) and a text (with a bindable placeholder)
 config.questionTypes = {};
-config.questionTypes.guessAnimalText = [
+config.questionTypes.guessAnimalName = [
 	{
 		"fieldName": "class_name",
 		"text": "Které z těchto zvířat patří do třídy \":value\"?"
@@ -62,6 +62,32 @@ config.questionTypes.guessAnimalText = [
 		"text": "Latinský název \":value\" přísluší tomuto zvířeti:"
 	}
 ];
+config.questionTypes.guessAnimalAttribute = [
+	{
+		"fieldName": "class_name",
+		"text": "Do které z těchto tříd patří \":value\"?"
+	},
+	{
+		"fieldName": "order_name",
+		"text": "Do kterého z těchto řádů patří \":value\"?"
+	},
+	{
+		"fieldName": "food_detail",
+		"text": "Víš, jaké zvíře se živí tímto druhem potravy: :value?"
+	},
+	{
+		"fieldName": "biotopes_detail",
+		"text": ":value je doma v jakých životních prostředích?"
+	},
+	{
+		"fieldName": "latin_name",
+		"text": ":value se honosí tímto latinských názvem:"
+	}
+];
+config.questionTypes.guessAnimalImage = {
+	"fieldName": "image",
+	"text": "Poznáš, jaké zvíře je na obrázku?"
+}
 
 // The arrays of mandatory columns that should be brought from Opendata tables
 config.filterColumns = {};
