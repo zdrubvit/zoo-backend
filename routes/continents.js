@@ -34,10 +34,28 @@ routes.get("/", function(req, res, next) {
 			return {"_id": index, "name": value};
 		});
 
-		var payload = lexiconSerializer.serialize(documents);
+		documentsLength = documents.length;
+		documentsCount = 0;
 
-		res.json(payload);
-	}, (error) => {
+		documents.forEach((document) => {
+			collectionDriver.countDocuments(collectionName, {"continents": document.name}).then((count) => {
+				document.count = count;
+
+				documentsCount++;
+
+				if (documentsCount == documentsLength) {
+					// All the documents are finally complete - send them back
+					var payload = lexiconSerializer.serialize(documents);
+
+					res.json(payload);
+				}
+			})
+		}, (error) => {
+			// Propagate the error up to the catcher
+			throw error;
+		});
+	})
+	.catch((error) => {
 		// In case of an error, forward the details to the main error handler (the JS Error object has to be stringified explicitly)
 		return next(error);
 	});

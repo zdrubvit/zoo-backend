@@ -165,11 +165,11 @@ config.fieldIndexes.locations = [];
 // The attributes of a JSON serialization used in our API communication (coinciding with the collection field names)
 config.serialization = {};
 config.serialization.adoptions = ["opendata_id", "lexicon_id", "name", "price", "visit"];
-config.serialization.biotopes = ["name"];
+config.serialization.biotopes = ["name", "count"];
 config.serialization.classifications = ["opendata_id", "type", "parent_id", "name", "latin_name", "slug", "orders"];
-config.serialization.continents = ["name"];
+config.serialization.continents = ["name", "count"];
 config.serialization.events = ["start", "end", "duration", "description", "name"];
-config.serialization.food = ["name"];
+config.serialization.food = ["name", "count"];
 config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class_name", "class_latin_name", "order_name", "order_latin_name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
 config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
