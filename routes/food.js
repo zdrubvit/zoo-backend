@@ -16,7 +16,7 @@ routes.use(function(req, res, next) {
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Gain access to the shared methods
-	middleware = new Middleware();
+	middleware = new Middleware(collectionDriver);
 
 	// Create a serializer instance with perfected config options
 	lexiconSerializer = middleware.getSerializer("food", fieldNames);
@@ -28,35 +28,11 @@ routes.get("/", function(req, res, next) {
 	// Filter the documents so that the field value is valid and believable
 	var query = { $where: "this.food.length > 0 && this.food.length < 30" };
 
-	collectionDriver.findDistinctValues(collectionName, "food", query).then((values) => {
-		// The serialization argument must either be an array of documents or an empty array, but the values are simple array elements
-		var documents = values.map(function(value, index) {
-			return {"_id": index, "name": value};
-		});
+	middleware.handleDistinctValues(collectionName, "food", query).then((documents) => {
+		var payload = lexiconSerializer.serialize(documents);
 
-		documentsLength = documents.length;
-		documentsCount = 0;
-
-		documents.forEach((document) => {
-			collectionDriver.countDocuments(collectionName, {"food": document.name}).then((count) => {
-				document.count = count;
-
-				documentsCount++;
-
-				if (documentsCount == documentsLength) {
-					// All the documents are finally complete - send them back
-					var payload = lexiconSerializer.serialize(documents);
-
-					res.json(payload);
-				}
-			})
-		}, (error) => {
-			// Propagate the error up to the catcher
-			throw error;
-		});
-	})
-	.catch((error) => {
-		// In case of an error, forward the details to the main error handler (the JS Error object has to be stringified explicitly)
+		res.json(payload);
+	}, (error) => {
 		return next(error);
 	});
 });
