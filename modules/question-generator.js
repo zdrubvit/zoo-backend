@@ -69,7 +69,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 				answer_object_id: primaryDocument._id,
 				picked_count: 0,
 				answered_correctly_count: 0,
-				flags: 0
+				flags: 0,
+				enabled: true
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
@@ -142,7 +143,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 				answer_object_id: primaryDocument._id,
 				picked_count: 0,
 				answered_correctly_count: 0,
-				flags: 0
+				flags: 0,
+				enabled: true
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
@@ -211,7 +213,8 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 				answer_object_id: primaryDocument._id,
 				picked_count: 0,
 				answered_correctly_count: 0,
-				flags: 0
+				flags: 0,
+				enabled: true
 			}];
 
 			return this.collectionDriver.insertDocuments(this.targetCollectionName, newQuestion);
