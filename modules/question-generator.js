@@ -41,7 +41,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 				{ answer_object_id: primaryDocument._id }
 			];
 
-			// Check if the question exists already (based on its wording and answer so far)
+			// Check if the question exists already (based on its wording and answer)
 			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
 		}).then((document) => {
 			var tertiaryQuery = {};
@@ -114,7 +114,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 				{ answer_object_id: primaryDocument._id }
 			];
 
-			// Check if the question exists already (based on its wording and answer so far)
+			// Check if the question exists already (based on its wording and answer)
 			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
 		}).then((document) => {
 			var tertiaryQuery = {};
@@ -138,7 +138,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 				correct_answer: primaryDocument[questionVariation.fieldName],
 				incorrect_answers: incorrectAnswers,
 				difficulty: 0,
-				type: "guess_animal_text",
+				type: "guess_animal_attribute",
 				answer_object_id: primaryDocument._id,
 				picked_count: 0,
 				answered_correctly_count: 0,
@@ -189,11 +189,12 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 			}
 
 			secondaryQuery.$and = [
-				{ text: questionType.text + primaryDocument[questionType.fieldName] },
+				{ text: questionType.text },
+				{ image: primaryDocument[questionType.fieldName] },
 				{ answer_object_id: primaryDocument._id }
 			];
 
-			// Check if the question exists already (based on its wording and answer so far)
+			// Check if the question exists already (based on its text, image and answer)
 			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
 		}).then((document) => {
 			// If the question's been already generated, stop the process at once
@@ -201,11 +202,12 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 
 			// Create the question and save it immediately so it can be findable for duplicity check by subsequent question generations
 			var newQuestion = [{
-				text: questionType.text + primaryDocument[questionType.fieldName],
+				text: questionType.text,
+				image: primaryDocument[questionType.fieldName],
 				correct_answer: primaryDocument.name,
 				incorrect_answers: incorrectAnswers,
 				difficulty: 0,
-				type: "guess_animal_text",
+				type: "guess_animal_image",
 				answer_object_id: primaryDocument._id,
 				picked_count: 0,
 				answered_correctly_count: 0,
