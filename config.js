@@ -73,7 +73,7 @@ config.questionTypes.guessAnimalAttribute = [
 	},
 	{
 		"fieldName": "food_detail",
-		"text": "Víš, jaké zvíře se živí tímto druhem potravy: :value?"
+		"text": "Víš, čím se živí :value?"
 	},
 	{
 		"fieldName": "biotopes_detail",
