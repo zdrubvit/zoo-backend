@@ -22,7 +22,7 @@ MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.po
 	// Log the request
 	app.use(function(req, res, next) {
 		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
-		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip);
+		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip + " at " + new Date());
 
 		return next();
 	});

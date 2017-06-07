@@ -58,14 +58,7 @@ Transformer.prototype.transformLexiconDocument = function(document) {
 };
 
 Transformer.prototype.transformLocationDocument = function(document) {
-	// Split the GPS into coordinates
-	document.gps = {
-		"x": document.gps_x,
-		"y": document.gps_y
-	};
-
-	delete document.gps_x;
-	delete document.gps_y;
+	// Maybe split the GPS into single coordinates
 };
 
 exports.Transformer = Transformer;

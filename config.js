@@ -172,7 +172,7 @@ config.serialization.events = ["start", "end", "duration", "description", "name"
 config.serialization.food = ["name", "count"];
 config.serialization.lexicon = ["opendata_id", "name", "latin_name", "class_name", "class_latin_name", "order_name", "order_latin_name", "description", "image", "continents", "distribution", 
 	"biotope", "biotopes_detail", "food", "food_detail", "proportions", "reproduction", "attractions", "projects", "breeding", "location", "location_url"];
-config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps", "name", "slug"];
+config.serialization.locations = ["opendata_id", "description", "ordering", "url", "gps_x", "gps_y", "name", "slug"];
 config.serialization.questions = ["text", "image", "correct_answer", "incorrect_answers", "difficulty", "type", "answer_object_id"];
 
 // The allowed query parameters of certain API methods
