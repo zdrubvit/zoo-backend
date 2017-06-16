@@ -9,7 +9,7 @@ const Logger = require("./modules/logger").Logger;
 const config = require("./config").config;
 
 // Connect to the DB and then reuse the instance across all the requests thanks to its own connection pool
-MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
+MongoClient.connect(process.env.MONGODB_URI).then((db) => {
 	// Instantiate the logger
 	var logger = new Logger(db);
 
