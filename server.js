@@ -9,7 +9,7 @@ const Logger = require("./modules/logger").Logger;
 const config = require("./config").config;
 
 // Connect to the DB and then reuse the instance across all the requests thanks to its own connection pool
-MongoClient.connect(process.env.MONGODB_URI).then((db) => {
+MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
 	// Instantiate the logger
 	var logger = new Logger(db);
 
@@ -104,7 +104,7 @@ MongoClient.connect(process.env.MONGODB_URI).then((db) => {
   		res.status(404).json(error);
 	});
 
-	app.listen(process.env.PORT, function() {
+	app.listen(process.env.PORT || 3000, function() {
 		logger.log("info", "The server is listening on port " + "3000...".red);
 	});
 }, console.error);

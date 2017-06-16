@@ -5,7 +5,7 @@ const Logger = require("./modules/logger").Logger;
 const QuestionGenerator = require("./modules/question-generator").QuestionGenerator;
 const config = require("./config").config;
 
-MongoClient.connect("mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
+MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
 	var logger = new Logger(db);
 	var collectionDriver = new CollectionDriver(db, logger);
 	var questionGenerator = new QuestionGenerator(

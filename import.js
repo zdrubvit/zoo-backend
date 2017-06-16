@@ -6,7 +6,7 @@ const Logger = require("./modules/logger").Logger;
 const Transformer = require("./modules/transformer").Transformer;
 const config = require("./config").config;
 
-MongoClient.connect(process.env.MONGODB_URI).then((db) => {
+MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.host + ":" + config.mongodb.port + "/" + config.mongodb.database).then((db) => {
 	var logger = new Logger(db);
 	var collectionDriver = new CollectionDriver(db, logger);
 	var transformer = new Transformer();
