@@ -104,7 +104,7 @@ MongoClient.connect(process.env.MONGODB_URI).then((db) => {
   		res.status(404).json(error);
 	});
 
-	app.listen(3000, function() {
+	app.listen(process.env.PORT, function() {
 		logger.log("info", "The server is listening on port " + "3000...".red);
 	});
 }, console.error);
