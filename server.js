@@ -19,6 +19,9 @@ MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.hos
 	var collectionDriver = new CollectionDriver(db, logger);
 	app.set("collectionDriver", collectionDriver);
 
+	// Set the communication port
+	app.set("port", process.env.PORT || 3000);
+
 	// Log the request
 	app.use(function(req, res, next) {
 		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
@@ -104,7 +107,7 @@ MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.hos
   		res.status(404).json(error);
 	});
 
-	app.listen(process.env.PORT || 3000, function() {
-		logger.log("info", "The server is listening on port " + "3000...".red);
+	app.listen(app.get("port"), function() {
+		logger.log("info", "The server is listening on port " + app.get("port").toString().red + "...");
 	});
 }, console.error);

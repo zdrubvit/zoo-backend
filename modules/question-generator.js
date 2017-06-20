@@ -7,7 +7,6 @@ QuestionGenerator = function(logger, collectionDriver, sourceCollectionName, ans
 	this.sourceCollectionName = sourceCollectionName;
 	this.answerCount = answerCount;
 
-	this.questions = [];
 	this.targetCollectionName = config.mongodb.collectionNames.questions;
 	this.questionTypes = config.questionTypes;
 }
