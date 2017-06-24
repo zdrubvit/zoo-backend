@@ -45,7 +45,7 @@ routes.use(function(req, res, next) {
 	collectionDriver = req.app.get("collectionDriver");
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
+	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames, req.app.get("links"));
 
 	return next();
 });

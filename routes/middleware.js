@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const S = require("string");
 const JSONAPISerializer = require("jsonapi-serializer").Serializer;
 
 // Helper middleware class used across multiple app routes
@@ -14,9 +15,58 @@ Middleware.prototype.validateRequestQuery = function(schemaKeys, requestQuery) {
 	return validation;
 };
 
+// Extend the incoming links object with pagination URLs
+Middleware.prototype.createPaginationLinks = function(links, offset, limit) {
+	var url = links.self;
+
+	// Create the query parameter strings with the current offset and limit
+	var currentOffsetString = "offset=" + offset;
+	var currentLimitString = "limit=" + limit;
+
+	// Prepare the new strings
+	var nextOffsetString = prevOffsetString = "offset=";
+
+	if (offset) {
+		var nextOffset = offset;
+		var prevOffset = offset;
+
+		// Change the offset according to the present limit
+		if (limit) {
+			nextOffset = (parseInt(offset) + parseInt(limit)).toString();
+			prevOffset = (parseInt(offset) - parseInt(limit)).toString();
+		}
+
+		nextOffsetString += nextOffset;
+
+		// Check if the new offset is a positive number
+		if (prevOffset >= 0) {
+			prevOffsetString += prevOffset;
+		} else {
+			prevOffsetString += "0";
+		}
+
+		// Replace the old offsets with the new ones
+		links.prev = S(url).replaceAll(currentOffsetString, prevOffsetString).s;
+		links.next = S(url).replaceAll(currentOffsetString, nextOffsetString).s;
+	} else if (limit) {
+		// Treat the offset as it's equal to zero
+		nextOffsetString += limit;
+		prevOffsetString += "0";
+
+		// Create the new offsets
+		links.next = url + "&" + nextOffsetString;
+		links.prev = url + "&" + prevOffsetString;
+	}
+
+	// The first and the last links are mutual
+	links.first = S(url).replaceAll(currentOffsetString, "offset=0").s;
+	links.last = S(url).replaceAll(currentLimitString, "").s;
+}
+
 // Returns the JSONSerializer instance
-Middleware.prototype.getSerializer = function(collectionName, attributes) {
+Middleware.prototype.getSerializer = function(collectionName, attributes, links = {}) {
 	return new JSONAPISerializer(collectionName, {
+		"topLevelLinks": links,
 		"id": "_id",
 		"attributes": attributes,
 		"pluralizeType": false,

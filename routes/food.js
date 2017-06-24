@@ -19,7 +19,7 @@ routes.use(function(req, res, next) {
 	middleware = new Middleware(collectionDriver);
 
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer("food", fieldNames);
+	lexiconSerializer = middleware.getSerializer("food", fieldNames, req.app.get("links"));
 
 	return next();
 });

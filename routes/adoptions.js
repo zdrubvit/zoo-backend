@@ -51,8 +51,15 @@ routes.use(function(req, res, next) {
 	// Retrieve the driver instances for later use
 	collectionDriver = req.app.get("collectionDriver");
 
+	var links = req.app.get("links");
+
+	// Conform to the HATEOAS principle when serving a limited number of records, i.e. paginating
+	if (req.query.offset || req.query.limit) {
+		middleware.createPaginationLinks(links, req.query.offset, req.query.limit);
+	}
+
 	// Create a serializer instance with perfected config options
-	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames);
+	lexiconSerializer = middleware.getSerializer(collectionName, fieldNames, links);
 
 	return next();
 });

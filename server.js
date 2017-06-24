@@ -27,6 +27,10 @@ MongoClient.connect(process.env.MONGODB_URI || "mongodb://" + config.mongodb.hos
 		var url = req.protocol + "://" + req.get("host") + req.originalUrl;
 		logger.log("info", "A new request to " + url.cyan + " received from the IP " + req.ip + " at " + new Date());
 
+		// Set up the links object with a default URL so that it can be accessed from the routes
+		var links = {"self": url};
+		app.set("links", links);
+
 		return next();
 	});
 
