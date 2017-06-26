@@ -100,6 +100,7 @@ config.filterColumns.locations = ["id", "title", "alias", "ordering", "gps_x", "
 
 // The names of transformation methods that are applied to respective resources after they'd been imported
 config.transformMethod = {};
+config.transformMethod.adoptions = "transformAdoptionDocument";
 config.transformMethod.classifications = "transformClassificationDocument";
 config.transformMethod.events = "transformEventDocument";
 config.transformMethod.lexicon = "transformLexiconDocument";

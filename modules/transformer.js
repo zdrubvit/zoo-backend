@@ -8,6 +8,15 @@ const config = require("../config").config;
 // A transformer class, taking care of modifying the imported documents - every method belongs to one specific type
 Transformer = function() {};
 
+Transformer.prototype.transformAdoptionDocument = function(document) {
+	// Replace the visited status with a boolean value
+	if (document.k_prohlidce == "1") {
+		document.k_prohlidce = true;
+	} else {
+		document.k_prohlidce = false;
+	}
+};
+
 Transformer.prototype.transformClassificationDocument = function(document) {
 	// Split the czech and latin names in the classification
 	if (document.d) {

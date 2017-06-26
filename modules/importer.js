@@ -64,6 +64,7 @@ Importer.prototype.importWrapper = function(resource) {
 		var filterColumns = config.filterColumns[resource];
 		var fieldMapping = config.fieldMapping[resource];
 		var transformMethod = config.transformMethod[resource];
+		var fieldIndexes = config.fieldIndexes[resource];
 
 		// Make the received (downloaded) data available for the later nested functions through a closure
 		this.getOpenData(url, collectionName, filterColumns).then((data) => {
@@ -89,7 +90,7 @@ Importer.prototype.importWrapper = function(resource) {
 			.then((result) => {
 				this.logger.log("info", result);
 
-				return this.collectionDriver.createIndexes(collectionName, config.fieldIndexes[resource]);
+				return this.collectionDriver.createIndexes(collectionName, fieldIndexes);
 			})
 			.then((result) => {
 				// All done - log the last result and resolve the promise
@@ -105,8 +106,12 @@ Importer.prototype.importAdoptions = function() {
 	return new Promise((resolve, reject) => {
 		var url = this.endpoint + config.opendata.resources.adoptions;
 		var collectionName = config.mongodb.collectionNames.adoptions;
+		var filterColumns = config.filterColumns.adoptions;
+		var fieldMapping = config.fieldMapping.adoptions;
+		var transformMethod = config.transformMethod.adoptions;
+		var fieldIndexes = config.fieldIndexes.adoptions;
 
-		this.getOpenData(url, collectionName, config.filterColumns.adoptions).then((data) => {
+		this.getOpenData(url, collectionName, filterColumns).then((data) => {
 			this.logger.log("info", data.result.records.length + " records received from the " + collectionName.cyan + " table.");
 			
 			this.collectionDriver.truncateCollection(collectionName).then((result) => {
@@ -115,17 +120,20 @@ Importer.prototype.importAdoptions = function() {
 				return this.linkAdoptionsToLexicon(config.mongodb.collectionNames.lexicon, data.result.records);
 			})
 			.then((documents) => {
+				return this.transformDocuments(data.result.records, this.transformer[transformMethod]);
+			})
+			.then((documents) => {
 				return this.collectionDriver.insertDocuments(collectionName, documents);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
 
-				return this.collectionDriver.renameFields(collectionName, config.fieldMapping.adoptions);
+				return this.collectionDriver.renameFields(collectionName, fieldMapping);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
 
-				return this.collectionDriver.createIndexes(collectionName, config.fieldIndexes.adoptions);
+				return this.collectionDriver.createIndexes(collectionName, fieldIndexes);
 			})
 			.then((result) => {
 				this.logger.log("info", result);
