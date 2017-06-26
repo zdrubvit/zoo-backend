@@ -31,12 +31,12 @@ Transformer.prototype.transformLexiconDocument = function(document) {
 
 		var image = $("img").first().attr("src");
 		if(image) {
-			// Fix the case when there's no domain specified
-			if(image.indexOf("images") === 0) image = config.zoo.host + image;
-
 			document.image_src = image;
 		}
 	}
+
+	// Fix the case when there's no image domain specified
+	if(document.image_src.indexOf("/images") === 0) document.image_src = config.zoo.host + document.image_src;
 
 	// Get rid of the HTML tags and trim the resulting string
 	document.description = striptags(document.description).trim();
