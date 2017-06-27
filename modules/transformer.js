@@ -30,6 +30,9 @@ Transformer.prototype.transformClassificationDocument = function(document) {
 Transformer.prototype.transformEventDocument = function(document) {
 	// Calculate the event's duration in minutes
 	document.duration = moment(document.end).diff(moment(document.start), "minutes").toString();
+
+	// Get rid of the HTML tags and trim the resulting string
+	document.description = striptags(document.description).trim();
 };
 
 Transformer.prototype.transformLexiconDocument = function(document) {
