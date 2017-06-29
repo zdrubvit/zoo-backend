@@ -33,9 +33,9 @@ CollectionDriver.prototype.getCollection = function(collectionName, createNonExi
 /*
 * Searches the collection for a specified document
 */
-CollectionDriver.prototype.findDocument = function(collectionName, query = {}) {
+CollectionDriver.prototype.findDocument = function(collectionName, query = {}, createNonExisting = false) {
 	return new Promise((resolve, reject) => {
-		this.getCollection(collectionName, false).then((collection) => {
+		this.getCollection(collectionName, createNonExisting).then((collection) => {
 			// findOne method was deemed deprecated for a while but since then re-introduced due to the popular revolt
 			return collection.findOne(query);
 		}).then((document) => {

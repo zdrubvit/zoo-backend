@@ -41,7 +41,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 			];
 
 			// Check if the question exists already (based on its wording and answer)
-			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
+			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery, true);
 		}).then((document) => {
 			var tertiaryQuery = {};
 
@@ -78,7 +78,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalName = function() {
 
 			resolve(true);
 		}).catch((reason) => {
-			this.logger.log("error", "The question saving failed with the following reason: " + reason);
+			this.logger.log("error", "The question generation process failed with the following reason: " + reason);
 
 			resolve(false);
 		});
@@ -115,7 +115,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 			];
 
 			// Check if the question exists already (based on its wording and answer)
-			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
+			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery, true);
 		}).then((document) => {
 			var tertiaryQuery = {};
 
@@ -152,7 +152,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalAttribute = function() {
 
 			resolve(true);
 		}).catch((reason) => {
-			this.logger.log("error", "The question saving failed with the following reason: " + reason);
+			this.logger.log("error", "The question generation process failed with the following reason: " + reason);
 
 			resolve(false);
 		});
@@ -196,7 +196,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 			];
 
 			// Check if the question exists already (based on its text, image and answer)
-			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery);
+			return this.collectionDriver.findDocument(this.targetCollectionName, secondaryQuery, true);
 		}).then((document) => {
 			// If the question's been already generated, stop the process at once
 			if (document) return Promise.reject("The generated question already exists.");
@@ -222,7 +222,7 @@ QuestionGenerator.prototype.generateQuestionGuessAnimalImage = function() {
 
 			resolve(true);
 		}).catch((reason) => {
-			this.logger.log("error", "The question saving failed with the following reason: " + reason);
+			this.logger.log("error", "The question generation process failed with the following reason: " + reason);
 
 			resolve(false);
 		});
