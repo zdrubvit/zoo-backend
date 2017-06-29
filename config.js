@@ -81,7 +81,7 @@ config.questionTypes.guessAnimalAttribute = [
 	},
 	{
 		"fieldName": "latin_name",
-		"text": ":value se honosí tímto latinských názvem:"
+		"text": ":value se honosí tímto latinským názvem:"
 	}
 ];
 config.questionTypes.guessAnimalImage = {
